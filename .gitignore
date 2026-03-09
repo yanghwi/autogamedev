@@ -23,10 +23,3 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
-
-# Test coverage
-coverage/
-
-# Prisma generated client
-generated/
-server/src/generated/

@@ -5,12 +5,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    proxy: {
-      '/socket.io': {
-        target: 'http://localhost:3000',
-        ws: true,
-      },
-    },
   },
   build: {
     target: 'es2020',
@@ -19,7 +13,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
-          socket: ['socket.io-client'],
           state: ['zustand'],
         },
       },

@@ -10,12 +10,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@round-midnight/shared": ["../shared/types.ts"],
-      "@round-midnight/shared/*": ["../shared/*"]
-    },
-    "baseUrl": "."
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "../shared"]
+  "include": ["src"]
 }

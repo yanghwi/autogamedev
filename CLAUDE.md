@@ -1,32 +1,83 @@
-# CLAUDE.md - Round Midnight
+# CLAUDE.md — Midnight Bestiary
 
-4인 협동 웹 로그라이트. EarthBound 톤 + D&D식 선택지 + d20 주사위. 아이폰 사파리, 침대에서 15분.
+AI 에이전트 자율 게임 개발 프로젝트. EarthBound 톤의 싱글플레이어 몬스터 드래프트 오토배틀러.
 
-## 반드시 기억할 것
+## 프로젝트 철학
 
-- **빌드는 개별 워크스페이스만**: `npm run build --workspace=@round-midnight/client` 또는 `--workspace=@round-midnight/server`
-- **Socket 이벤트 추가 시 5곳 수정**: shared/types.ts(타입+이벤트명) → server handlers.ts → client useSocket.ts → gameStore.ts
-- **LLM 의존 기능은 반드시 폴백 구현**: 폴백 데이터는 `server/src/game/data/hardcodedData.ts`
-- **장비 보너스는 `ResolvedEffects`만 사용**: `ItemEffectResolver.resolveEquippedEffects()`의 반환값으로 읽을 것
-- **새 적 추가 시**: `monsterRegistry.ts`에 엔트리 추가 + `spriteData.ts`의 `SPRITE_CATEGORIES`에 imageTag 추가 + PNG 파일 배치 (hardcodedData/situationGenerator는 자동 연동)
-- **클라이언트→서버 데이터 파이프라인 전 구간 검증**: optional 필드가 `undefined`면 하류에서 무음 실패
-- **UI/디자인 작업 시**: `docs/design-system/` 필수 참조
-- **플랫폼**: 아이폰 사파리 세로, 한 손 엄지, 10분
+Karpathy의 autoresearch에서 영감. 에이전트가 자율적으로 게임을 개발하되, 게임은 정량 평가가 어려우므로 **인간 데모 검증 루프**를 따른다:
+
+```
+구현 → 빌드 검증 → 인간에게 데모 시연 → 피드백 수렴 → 다음 이터레이션
+```
+
+- 무한 루프를 돌지 말 것. 의미 있는 단위로 끊어서 인간의 재미 판단을 받을 것.
+- 변경 후 반드시 빌드 통과 확인: `npm run build --workspace=@midnight-bestiary/client`
+- 한 번에 너무 많이 바꾸지 말 것. 작은 변경 → 검증 → 다음 변경.
+
+## 보존해야 할 자산
+
+- **287개 EarthBound 스타일 픽셀 스프라이트**: `client/public/sprites/*.png`
+- **Mother/EarthBound 분위기**: 다크 보라 팔레트, 사이키델릭 배경, 레트로 폰트
+- **디자인 토큰**: `tailwind.config.js`의 midnight/arcane/tier 색상 체계
+- **CSS 유틸리티**: `index.css`의 eb-window, psychedelic-bg, scanlines, lobby-title
+
+## 기술 스택
+
+- **클라이언트 전용** (서버 없음): React 18 + Vite + Tailwind 3 + Zustand
+- **플랫폼**: 아이폰 사파리 세로, 한 손 엄지, 10분 세션
+- **빌드**: `npm run build --workspace=@midnight-bestiary/client`
+- **개발**: `npm run dev` → http://localhost:5173
+
+## 핵심 파일 구조
+
+```
+client/
+  public/sprites/           ← 287개 PNG 스프라이트 (절대 삭제 금지)
+  src/
+    prototype/
+      monsters.ts           ← 134개 몬스터 데이터 + 시너지 시스템
+      store.ts              ← Zustand 게임 엔진 (드래프트/배틀/웨이브)
+      App.tsx               ← 전체 UI (타이틀/드래프트/배틀/결과)
+    index.css               ← 글로벌 스타일 + EarthBound UI 컴포넌트
+    main.tsx                ← 엔트리포인트
+  tailwind.config.js        ← 디자인 토큰 (midnight, arcane, tier 색상)
+```
+
+## 게임 핵심 루프
+
+```
+타이틀 → 드래프트(3택1) → 오토배틀 관전 → 승리 → 다음 드래프트 → ... → 10웨이브 클리어/패배
+```
+
+- **드래프트**: 매 웨이브 전, 3마리 중 1마리를 팀에 추가 (최대 4마리)
+- **시너지**: 같은 카테고리 2마리+ 시 보너스 (animal=ATK, humanoid=DEF, supernatural=HP 등)
+- **오토배틀**: 턴제 자동 전투, 600ms 간격으로 이벤트 재생
+- **10웨이브**: 티어 1 → 5까지 점진적 난이도 상승, 웨이브 5/10은 보스
+
+## 몬스터 데이터
+
+- 134마리, 8 카테고리 (animal, humanoid, machine, supernatural, insect, plant, blob, boss)
+- 5 티어 (스탯 범위가 다름), ID 기반 결정론적 스탯 파생
+- 시너지 보너스: min2(2마리 이상), min3(3마리 이상)
+
+## 반드시 지킬 것
+
+- **하드코딩 색상 금지**: Tailwind 클래스만 사용
+- **스프라이트 경로**: `/sprites/{imageTag}.png` (spriteUrl 함수 사용)
+- **빌드 깨지면 즉시 수정**: tsc + vite build 모두 통과해야 함
+- **변경 후 데모 가능 상태 유지**: 항상 플레이 가능한 상태를 유지할 것
 
 ## 하지 말 것
 
-- **`npm run build` 전체 빌드 금지** (shared에 build 스크립트 없어서 실패)
-- **하드코딩 색상 / 인라인 스타일 금지**: Tailwind 클래스만 사용 (`bg-midnight-700`, `text-arcane-light`)
-- **중복 데이터 소스 금지**: 같은 로직을 함수와 Record로 이중 구현하지 말 것
-- **Props/함수 만들고 연결 안 하기 금지**: dead code를 만듦
-- **`character.equipment.weaponBonus` 직접 읽기 금지**: `ResolvedEffects` 사용
-- **서버 실행 중 `prisma generate` 금지**: Windows DLL 잠금으로 실패
-- **보스 웨이브(5, 10) LLM 출력으로 교체 금지**: 코드 레벨 잠금, 템플릿 강제
+- **`npm run build` (루트)** 실행 금지 → workspace 지정 필수
+- **서버 코드 추가 금지** (현재 클라이언트 전용 아키텍처)
+- **스프라이트 파일 삭제/이동 금지**
+- **인간 검증 없이 핵심 게임 루프 변경 금지**
 
-## 상세 문서
+## 다음 이터레이션 후보 (인간 피드백 후 결정)
 
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - 기술 스택, 폴더 구조, Socket 이벤트, RunPhase 상태 머신, 스타일링, Prisma
-- [docs/DEV-GUIDE.md](docs/DEV-GUIDE.md) - 개발 주의사항, 캐릭터/주사위/아이템/웨이브 시스템 상세
-- [docs/PROGRESS.md](docs/PROGRESS.md) - Phase별 구현 진행 상황
-- [docs/GAME-DESIGN.md](docs/GAME-DESIGN.md) - 게임 설계서 (타입, 코어 루프, 데미지 공식)
-- [docs/design-system/](docs/design-system/) - Mother/Earthbound 디자인 시스템
+- 드래프트 선택의 깊이 (시너지 미리보기, 교체 UX 개선)
+- 오토배틀 연출 강화 (이펙트, 사운드, 카메라 흔들림)
+- 진행 영속성 (localStorage 최고 기록)
+- 메타 진행 (런 간 해금 시스템)
+- 밸런스 조정 (웨이브/티어/시너지 수치)
