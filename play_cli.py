@@ -35,7 +35,7 @@ ARCHETYPE_COLOR = {
 PASSIVE_DESC = {
     'beast': '광폭: HP 50%↓ → ATK 1.5x',
     'imp':   '사기진작: imp 수만큼 팀 ATK+1',
-    'blob':  '경화: 받는 피해 -30%',
+    'blob':  '경화: 받는 피해 -25%',
     'bot':   '연사: 50% 추가 타격',
     'ghost': '회피: 25% 회피+반격',
     'wyrm':  '성장: 매 4턴 ATK+1',
