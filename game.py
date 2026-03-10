@@ -33,6 +33,12 @@ class Unit:
             atk = round(atk * 1.5)
         return atk
 
+    def damage_reduction(self) -> float:
+        """피해 감소 비율. blob: 20% 감소."""
+        if self.name == 'blob':
+            return 0.2
+        return 0.0
+
 
 @dataclass
 class BattleLog:
@@ -69,10 +75,19 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             lead_changes += 1
         prev_leader = leader
 
-        def do_attack(atk_unit, def_unit):
-            dmg = max(1, round(atk_unit.effective_atk() * random.uniform(0.7, 1.3)))
+        # imp 사기 진작: 살아있는 imp 수만큼 팀 전원 ATK +1
+        imp_bonus_a = sum(1 for u in alive_a if u.name == 'imp' and u.is_alive())
+        imp_bonus_b = sum(1 for u in alive_b if u.name == 'imp' and u.is_alive())
+
+        def do_attack(atk_unit, def_unit, imp_bonus):
+            base_atk = atk_unit.effective_atk() + imp_bonus
+            dmg = max(1, round(base_atk * random.uniform(0.7, 1.3)))
             if def_unit.name == 'ghost' and random.random() < 0.2:
                 dmg = 0  # ghost 회피
+            # blob 피해 감소
+            reduction = def_unit.damage_reduction()
+            if reduction > 0:
+                dmg = max(1, round(dmg * (1 - reduction)))
             def_unit.hp -= dmg
             # bot 연사: 50% 확률로 약한 추가 타격
             if atk_unit.name == 'bot' and random.random() < 0.5:
@@ -82,7 +97,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # a 공격
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
-        do_attack(attacker, target)
+        do_attack(attacker, target, imp_bonus_a)
 
         alive_b = [u for u in b if u.is_alive()]
         if not alive_b:
@@ -91,7 +106,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # b 공격
         attacker = alive_b[turn % len(alive_b)]
         target = [u for u in a if u.is_alive()][0]
-        do_attack(attacker, target)
+        do_attack(attacker, target, imp_bonus_b)
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
