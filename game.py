@@ -164,10 +164,11 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                     highlights.append(f"턴{turn}: {atk_unit.name}→{def_unit.name} 처치!")
 
         # 동시 공격: 양팀이 동시에 공격 (선공 유리 제거)
+        # 아군은 적 전위(0번) 집중, 적은 아군 랜덤 타겟 (비대칭 — 분산 피해로 역전 기회 증가)
         attacker_a = alive_a[turn % len(alive_a)]
         target_a = alive_b[0]
         attacker_b = alive_b[turn % len(alive_b)]
-        target_b = alive_a[0]
+        target_b = random.choice(alive_a) if random.random() < 0.20 else alive_a[0]
         do_attack(attacker_a, target_a, imp_bonus_a, last_stand_a, underdog_b)
         do_attack(attacker_b, target_b, imp_bonus_b, last_stand_b, underdog_a)
 
