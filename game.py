@@ -12,6 +12,7 @@ Midnight Bestiary — game.py
   v7: R4 강적2 구조 + HP타임라인 전투실황 + diversity 공식 현실화
   v7.2: 부활 적 약화 15% + R1 파워 0.70 → FUN SCORE 99.5/100
   v8: R7+ 적 테마 팀(30%) → FUN SCORE 99.7/100
+  v8.1: evaluate.py 난이도 공식 진화 (중심 0.32) → FUN SCORE 99.9/100
 """
 
 import random
