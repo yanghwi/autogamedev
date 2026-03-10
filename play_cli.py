@@ -58,6 +58,7 @@ def interactive_play():
     lives = 2
     enemies_per_round = [1, 2, 2, 3, 3, 4, 4, 5]
     enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2, 1.3]
+    prev_won = False  # 직전 라운드 승리 여부 (보너스 선택지용)
 
     for round_num in range(1, n_rounds + 1):
         clear()
@@ -79,9 +80,11 @@ def interactive_play():
                 print(f"    시너지: {syn_str}")
             print()
 
-        # 드래프트
-        choices = [make_random_unit(tier=round_num) for _ in range(4)]
-        print("  드래프트 — 하나를 선택하세요:")
+        # 드래프트 — 승리 보상: 선택지 +1
+        n_choices = 5 if (round_num > 1 and prev_won) else 4
+        choices = [make_random_unit(tier=round_num) for _ in range(n_choices)]
+        bonus_tag = " (+1 보너스!)" if n_choices == 5 else ""
+        print(f"  드래프트{bonus_tag} — 하나를 선택하세요:")
         print()
         for i, c in enumerate(choices):
             icon = ARCHETYPE_ICON.get(c.name, '?')
@@ -91,12 +94,12 @@ def interactive_play():
 
         while True:
             try:
-                pick = int(input("  선택 (1-4): ")) - 1
-                if 0 <= pick <= 3:
+                pick = int(input(f"  선택 (1-{n_choices}): ")) - 1
+                if 0 <= pick < n_choices:
                     break
             except (ValueError, EOFError):
                 pass
-            print("  1, 2, 3, 4 중 하나를 입력하세요.")
+            print(f"  1~{n_choices} 중 하나를 입력하세요.")
 
         chosen = choices[pick]
         team.append(chosen)
@@ -155,12 +158,14 @@ def interactive_play():
             else:
                 print("  ✘ 패배...")
 
+        prev_won = won
+
         if won and round_num < n_rounds:
             for u in team:
                 if u.is_alive():
                     max_hp = 25 + round_num * 5 + 5
                     u.hp = min(max_hp, u.hp + round(max_hp * 0.15))
-            print("  (생존 유닛 HP 15% 회복)")
+            print("  (생존 유닛 HP 15% 회복 + 다음 드래프트 선택지 +1)")
 
         if not won and lives <= 0:
             print(f"\n  라운드 {round_num}에서 전멸. {round_num - 1}라운드 클리어.")
