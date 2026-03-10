@@ -309,6 +309,22 @@ def interactive_play():
         atk_color = C.GREEN if atk_adv == "유리" else C.RED if atk_adv == "불리" else C.YELLOW
         print(f"\n  {C.DIM}전력 비교: HP {hp_color}{my_total_hp}{C.RESET}{C.DIM} vs {en_total_hp} ({hp_color}{hp_adv}{C.RESET}{C.DIM})  ATK {atk_color}{my_total_atk}{C.RESET}{C.DIM} vs {en_total_atk} ({atk_color}{atk_adv}{C.RESET}{C.DIM}){C.RESET}")
 
+        # 전투 전망
+        my_power = my_total_atk * 2 + my_total_hp
+        en_power = en_total_atk * 2 + en_total_hp
+        ratio = my_power / en_power if en_power > 0 else 1
+        if ratio > 1.3:
+            outlook = f"{C.GREEN}압도적 우세 — 편하게 이길 수 있다{C.RESET}"
+        elif ratio > 1.1:
+            outlook = f"{C.GREEN}약간 유리 — 무난한 승리 예상{C.RESET}"
+        elif ratio > 0.9:
+            outlook = f"{C.YELLOW}호각 — 승패를 알 수 없다!{C.RESET}"
+        elif ratio > 0.7:
+            outlook = f"{C.RED}열세 — 행운이 필요하다{C.RESET}"
+        else:
+            outlook = f"{C.RED}큰 위기 — 기적을 바라자...{C.RESET}"
+        print(f"  {C.DIM}전망:{C.RESET} {outlook}")
+
         # 시너지 버프 미리보기
         from collections import Counter
         my_counts = Counter(u.name for u in team if u.is_alive())
