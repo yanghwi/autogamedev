@@ -60,6 +60,7 @@ def interactive_play():
     enemies_per_round = [1, 2, 2, 3, 3, 4, 4, 5]
     enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2, 1.3]
     prev_won = False  # 직전 라운드 승리 여부 (보너스 선택지용)
+    all_battles = []  # 전투 기록 누적
 
     for round_num in range(1, n_rounds + 1):
         clear()
@@ -123,6 +124,7 @@ def interactive_play():
 
         # game.py의 battle() 사용 — 로직 항상 동기화
         log = battle(team, enemies)
+        all_battles.append(log)
         won = log.winner == 'a'
 
         # 전투 후 유닛 상태를 팀에 반영
@@ -172,8 +174,14 @@ def interactive_play():
             print("  (생존 유닛 HP 15% 회복 + 다음 드래프트 선택지 +1)")
 
         if not won and lives <= 0:
-            print(f"\n  라운드 {round_num}에서 전멸. {round_num - 1}라운드 클리어.")
-            input("\n  [Enter] 종료...")
+            print(f"\n  ─── GAME OVER ───")
+            print(f"  {round_num - 1}/{n_rounds} 라운드 클리어")
+            print(f"  팀원: {', '.join(ARCHETYPE_ICON.get(u.name,'?') + u.name for u in team)}")
+            total_lead_changes = sum(b.lead_changes for b in all_battles)
+            print(f"  총 역전: {total_lead_changes}회")
+            retry = input("\n  다시 도전? (y/n): ").strip().lower()
+            if retry == 'y':
+                interactive_play()
             return
 
         if round_num < n_rounds:
@@ -181,7 +189,12 @@ def interactive_play():
 
     print()
     print("  ★★★ 전 라운드 클리어! ★★★")
-    input("\n  [Enter] 종료...")
+    print(f"  팀원: {', '.join(ARCHETYPE_ICON.get(u.name,'?') + u.name for u in team)}")
+    total_lead_changes = sum(b.lead_changes for b in all_battles)
+    print(f"  총 역전: {total_lead_changes}회  |  남은 목숨: {'♥' * lives}")
+    retry = input("\n  다시 도전? (y/n): ").strip().lower()
+    if retry == 'y':
+        interactive_play()
 
 
 if __name__ == '__main__':
