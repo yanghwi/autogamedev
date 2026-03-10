@@ -209,7 +209,7 @@ def play(strategy=None) -> GameResult:
         # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
         enemies_per_round = [1, 2, 2, 3, 3, 4, 4]  # 7라운드 확장
         n_enemies = enemies_per_round[round_num - 1]
-        enemy_power = [0.9, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2]
+        enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2]
         enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
                    for _ in range(n_enemies)]
 
