@@ -86,14 +86,22 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
 # ===== 유닛 풀 (에이전트가 진화시킬 부분) =====
 
 def make_random_unit(tier: int = 1, stat_mult: float = 1.0) -> Unit:
-    """티어에 따라 유닛 생성. stat_mult로 스탯 스케일링."""
-    names = ['beast', 'imp', 'blob', 'bot', 'ghost']
+    """티어에 따라 유닛 생성. 아키타입별 스탯 분화로 전투 긴장감 증가."""
+    # 아키타입: (이름, HP배율, ATK배율) — 총 파워 유사하되 배분이 다름
+    archetypes = [
+        ('beast', 0.8, 1.4),   # 유리포: 낮은 HP, 높은 ATK
+        ('imp',   1.0, 1.0),   # 균형형
+        ('blob',  1.3, 0.7),   # 탱커: 높은 HP, 낮은 ATK
+        ('bot',   0.9, 1.2),   # 딜러
+        ('ghost', 1.1, 0.9),   # 서브탱커
+    ]
+    name, hp_mult, atk_mult = random.choice(archetypes)
     base_hp = 25 + tier * 5
     base_atk = 3 + tier * 1
     return Unit(
-        name=random.choice(names),
-        hp=round(random.randint(base_hp, base_hp + 10) * stat_mult),
-        atk=round(random.randint(base_atk, base_atk + 2) * stat_mult),
+        name=name,
+        hp=round(random.randint(base_hp, base_hp + 10) * stat_mult * hp_mult),
+        atk=max(1, round(random.randint(base_atk, base_atk + 2) * stat_mult * atk_mult)),
     )
 
 
