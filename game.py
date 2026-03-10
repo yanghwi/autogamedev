@@ -28,6 +28,8 @@ class BattleLog:
     a_hp_remaining: float  # 0~1 비율
     b_hp_remaining: float
     lead_changes: int  # 우세가 뒤바뀐 횟수
+    a_units: list = None  # 전투 후 a팀 유닛 상태
+    b_units: list = None  # 전투 후 b팀 유닛 상태
 
 
 def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
@@ -82,6 +84,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         a_hp_remaining=max(0, a_hp_ratio),
         b_hp_remaining=max(0, b_hp_ratio),
         lead_changes=lead_changes,
+        a_units=a,
+        b_units=b,
     )
 
 
@@ -140,9 +144,10 @@ def play(strategy=None) -> GameResult:
             pick = random.randint(0, 2)
         team.append(choices[pick])
 
-        # 적: 수는 팀의 55%, 라운드별 스탯 배율로 난이도 곡선 제어
-        n_enemies = max(1, round(len(team) * 0.55))
-        enemy_power = [0.9, 0.95, 1.0, 1.1, 1.2]  # 점진적 강화
+        # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
+        enemies_per_round = [1, 2, 2, 3, 3]  # R2를 2v2로
+        n_enemies = enemies_per_round[round_num - 1]
+        enemy_power = [0.9, 0.8, 0.95, 1.0, 1.15]  # R2 약화로 2v2 보상
         enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
                    for _ in range(n_enemies)]
 
