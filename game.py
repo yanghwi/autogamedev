@@ -130,8 +130,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         last_stand_b = 1.5 if len(alive_b) == 1 else 1.0
 
         # 역전 보너스: 열세 팀 피해 15% 감소 (역전 기회 증가)
-        underdog_a = 0.85 if a_ratio < b_ratio - 0.07 else 1.0
-        underdog_b = 0.85 if b_ratio < a_ratio - 0.07 else 1.0
+        underdog_a = 0.85 if a_ratio < b_ratio - 0.05 else 1.0
+        underdog_b = 0.85 if b_ratio < a_ratio - 0.05 else 1.0
 
         def do_attack(atk_unit, def_unit, imp_bonus, last_stand=1.0, underdog=1.0):
             base_atk = round((atk_unit.effective_atk() + imp_bonus) * last_stand)
