@@ -405,9 +405,14 @@ def interactive_play():
         enemy_max_hps = [e.hp for e in enemies]
 
         print(f"\n  적 {n_enemies}마리 출현!")
+        PASSIVE_SHORT = {
+            'beast': '광폭', 'imp': '사기↑', 'blob': '경화',
+            'bot': '연사', 'ghost': '회피', 'wyrm': '성장', 'phoenix': '부활',
+        }
         for e in enemies:
             eicon = ARCHETYPE_ICON.get(e.name, '?')
-            print(f"    {eicon} {e.name:6s}  HP {e.hp:3d}  ATK {e.atk:2d}")
+            ptag = f" {C.DIM}({PASSIVE_SHORT.get(e.name, '')}){C.RESET}"
+            print(f"    {eicon} {e.name:6s}  HP {e.hp:3d}  ATK {e.atk:2d}{ptag}")
         # 적 시너지 경고
         from collections import Counter
         en_counts = Counter(e.name for e in enemies)
