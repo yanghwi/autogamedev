@@ -146,12 +146,7 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
         titles.append("💀 사선의 생존자")
     if all(b.winner == 'a' for b in all_battles[:3]) and cleared >= 3:
         titles.append("🔥 개막 쓸어담기")
-    if titles:
-        print(f"\n  {C.BOLD}획득 칭호:{C.RESET}")
-        for t in titles:
-            print(f"    {C.YELLOW}{t}{C.RESET}")
-
-    # 최고 기록 저장
+    # 최고 기록 + 도전 과제 저장
     import json, pathlib
     record_path = pathlib.Path(__file__).parent / '.bestiary_records.json'
     try:
@@ -161,6 +156,7 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
     best_score = records.get('best_score', 0)
     best_cleared = records.get('best_cleared', 0)
     total_games = records.get('total_games', 0) + 1
+    unlocked = set(records.get('achievements', []))
     new_best = False
     if score > best_score:
         records['best_score'] = score
@@ -168,13 +164,33 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
     if cleared > best_cleared:
         records['best_cleared'] = cleared
     records['total_games'] = total_games
+
+    # 도전 과제 확인
+    new_achievements = []
+    for t in titles:
+        if t not in unlocked:
+            new_achievements.append(t)
+            unlocked.add(t)
+    records['achievements'] = list(unlocked)
     try:
         record_path.write_text(json.dumps(records))
     except Exception:
         pass
+
+    if new_achievements:
+        print(f"\n  {C.YELLOW}{C.BOLD}🏆 NEW ACHIEVEMENT!{C.RESET}")
+        for t in new_achievements:
+            print(f"    {C.YELLOW}★ {t}{C.RESET}")
+    elif titles:
+        print(f"\n  {C.BOLD}획득 칭호:{C.RESET}")
+        for t in titles:
+            print(f"    {C.DIM}{t}{C.RESET}")
+
     if new_best and best_score > 0:
         print(f"\n  {C.YELLOW}{C.BOLD}🏆 NEW BEST! 이전 최고: {best_score}점 → {score}점{C.RESET}")
     print(f"  {C.DIM}통산 {total_games}회 플레이  |  최고 {records.get('best_score', score)}점  |  최고 R{records.get('best_cleared', cleared)}{C.RESET}")
+    if unlocked:
+        print(f"  {C.DIM}도전 과제: {len(unlocked)}/5 해금{C.RESET}")
 
     # 전략 팁
     if cleared < total:
