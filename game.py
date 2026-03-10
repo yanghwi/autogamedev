@@ -99,8 +99,11 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         def do_attack(atk_unit, def_unit, imp_bonus):
             base_atk = atk_unit.effective_atk() + imp_bonus
             dmg = max(1, round(base_atk * random.uniform(0.7, 1.3)))
-            if def_unit.name == 'ghost' and random.random() < 0.2:
+            if def_unit.name == 'ghost' and random.random() < 0.25:
                 dmg = 0  # ghost 회피
+                # ghost 반격: 회피 성공 시 공격자에게 반격
+                counter = max(1, round(def_unit.effective_atk() * 0.5))
+                atk_unit.hp -= counter
             # blob 피해 감소
             reduction = def_unit.damage_reduction()
             if reduction > 0:
@@ -116,13 +119,14 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         target = alive_b[0]
         do_attack(attacker, target, imp_bonus_a)
 
+        alive_a = [u for u in a if u.is_alive()]
         alive_b = [u for u in b if u.is_alive()]
-        if not alive_b:
+        if not alive_a or not alive_b:
             break
 
         # b 공격
         attacker = alive_b[turn % len(alive_b)]
-        target = [u for u in a if u.is_alive()][0]
+        target = alive_a[0]
         do_attack(attacker, target, imp_bonus_b)
 
     alive_a = [u for u in a if u.is_alive()]
