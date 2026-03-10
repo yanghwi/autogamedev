@@ -413,11 +413,16 @@ def interactive_play():
                 print(f"  {C.DIM}💡 팁: 어려운 후반! 높은 ATK 유닛이 생존에 도움됩니다.{C.RESET}")
 
         if not won and lives <= 0:
-            print(f"\n  {C.RED}{C.BOLD}─── GAME OVER ───{C.RESET}")
+            import time
+            print()
+            for ch in f"  ─── GAME OVER ───":
+                print(f"{C.RED}{C.BOLD}{ch}{C.RESET}", end='', flush=True)
+                time.sleep(0.04)
+            print()
             if round_num >= 7:
-                print(f"  {C.DIM}R{round_num}까지 도달 — 거의 다 왔었다!{C.RESET}")
+                print(f"  {C.YELLOW}R{round_num}까지 도달 — 거의 다 왔었다!{C.RESET}")
             elif round_num >= 4:
-                print(f"  {C.DIM}중반까지 도달. 시너지를 노려보세요!{C.RESET}")
+                print(f"  {C.CYAN}중반까지 도달. 시너지를 노려보세요!{C.RESET}")
             else:
                 print(f"  {C.DIM}초반 탈락. HP 높은 유닛으로 버텨보세요!{C.RESET}")
             _show_game_summary(team, team_max_hps, all_battles, round_num - 1, n_rounds, 0)
