@@ -464,10 +464,10 @@ def interactive_play():
             lives -= 1
             if lives > 0:
                 print(f"  {C.YELLOW}✘ 패배... 하지만 아직 목숨 {lives}개 남음!{C.RESET}")
-                print("  (전원 HP 40%로 부활)")
+                print("  (전원 HP 50%로 부활)")
                 for i, u in enumerate(team):
                     max_hp = 25 + round_num * 5 + 5
-                    u.hp = max(1, round(max_hp * 0.4))
+                    u.hp = max(1, round(max_hp * 0.5))
                     team_max_hps[i] = max(team_max_hps[i], u.hp)
             else:
                 print(f"  {C.RED}{C.BOLD}✘ 패배...{C.RESET}")

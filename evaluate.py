@@ -160,8 +160,8 @@ def print_report(metrics: dict):
     dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 14
     # 전략 다양성: 모든 전략이 랜덤 이상이면 만점 (14점)
     st_score = m['strategies_above_random'] * 14
-    # 역전 드라마: comeback_rate (최대 0.3 → 14점)
-    cb_score = min(m['comeback_rate'] / 0.3, 1.0) * 14
+    # 역전 드라마: comeback_rate (최대 0.15 → 14점)
+    cb_score = min(m['comeback_rate'] / 0.15, 1.0) * 14
     fun_score = round(wr_score + di_score + tn_score + cf_score + dv_score + st_score + cb_score, 1)
     print(f"\n  ★ FUN SCORE: {fun_score}/100")
     print(f"    난이도 {wr_score:.1f}/15  의사결정 {di_score:.1f}/15  긴장감 {tn_score:.1f}/14  박빙 {cf_score:.1f}/14  다양성 {dv_score:.1f}/14  전략폭 {st_score:.1f}/14  역전 {cb_score:.1f}/14")
