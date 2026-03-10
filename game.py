@@ -54,10 +54,11 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             lead_changes += 1
         prev_leader = leader
 
-        # a 공격
+        # a 공격 (대미지 ±30% 분산 → 역전 기회 증가)
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
-        target.hp -= max(1, attacker.atk)
+        dmg = max(1, round(attacker.atk * random.uniform(0.7, 1.3)))
+        target.hp -= dmg
 
         alive_b = [u for u in b if u.is_alive()]
         if not alive_b:
@@ -66,7 +67,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # b 공격
         attacker = alive_b[turn % len(alive_b)]
         target = [u for u in a if u.is_alive()][0]
-        target.hp -= max(1, attacker.atk)
+        dmg = max(1, round(attacker.atk * random.uniform(0.7, 1.3)))
+        target.hp -= dmg
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
