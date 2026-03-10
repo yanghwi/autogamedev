@@ -309,6 +309,18 @@ def interactive_play():
         atk_color = C.GREEN if atk_adv == "유리" else C.RED if atk_adv == "불리" else C.YELLOW
         print(f"\n  {C.DIM}전력 비교: HP {hp_color}{my_total_hp}{C.RESET}{C.DIM} vs {en_total_hp} ({hp_color}{hp_adv}{C.RESET}{C.DIM})  ATK {atk_color}{my_total_atk}{C.RESET}{C.DIM} vs {en_total_atk} ({atk_color}{atk_adv}{C.RESET}{C.DIM}){C.RESET}")
 
+        # 시너지 버프 미리보기
+        from collections import Counter
+        my_counts = Counter(u.name for u in team if u.is_alive())
+        active_syn = [(n, c) for n, c in my_counts.items() if c >= 2]
+        if active_syn:
+            syn_parts = []
+            for n, c in active_syn:
+                pct = 20 if c == 2 else 35 if c == 3 else 55
+                icon = ARCHETYPE_ICON.get(n, '?')
+                syn_parts.append(f"{icon}{n}x{c}(+{pct}%)")
+            print(f"  {C.YELLOW}⚡ 시너지 발동: {', '.join(syn_parts)}{C.RESET}")
+
         input("\n  [Enter] 전투 시작...")
 
         # game.py의 battle() 사용 — 로직 항상 동기화
