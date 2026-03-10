@@ -196,7 +196,12 @@ def play(strategy=None) -> GameResult:
         # 드래프트: 3개 중 1개 선택
         choices = [make_random_unit(tier=round_num) for _ in range(3)]
         if strategy:
-            pick = strategy(choices, round_num)
+            import inspect
+            sig = inspect.signature(strategy)
+            if len(sig.parameters) >= 3:
+                pick = strategy(choices, round_num, team=team)
+            else:
+                pick = strategy(choices, round_num)
         else:
             pick = random.randint(0, 2)
         team.append(choices[pick])
@@ -250,6 +255,19 @@ def greedy_strategy(choices: list[Unit], round_num: int) -> int:
 def tank_strategy(choices: list[Unit], round_num: int) -> int:
     """가장 높은 HP 선택."""
     return max(range(len(choices)), key=lambda i: choices[i].hp)
+
+def synergy_strategy(choices: list[Unit], round_num: int, team: list = None) -> int:
+    """팀에 이미 있는 종족을 우선 선택 (시너지 극대화)."""
+    if not team:
+        return max(range(len(choices)), key=lambda i: choices[i].atk + choices[i].hp)
+    from collections import Counter
+    counts = Counter(u.name for u in team)
+    def score(i):
+        c = choices[i]
+        # 시너지 보너스: 이미 같은 종족이 있으면 크게 가산
+        syn = counts.get(c.name, 0) * 20
+        return c.atk + c.hp + syn
+    return max(range(len(choices)), key=score)
 
 
 if __name__ == '__main__':
