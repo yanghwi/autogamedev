@@ -184,7 +184,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         lead_changes=lead_changes,
         a_units=a,
         b_units=b,
-        highlights=highlights[-5:] if highlights else [],  # 최근 5개만
+        highlights=highlights[-8:] if highlights else [],  # 최근 8개
     )
 
 
