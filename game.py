@@ -16,9 +16,22 @@ class Unit:
     name: str
     hp: int
     atk: int
+    max_hp: int = 0  # 패시브 판정용
+
+    def __post_init__(self):
+        if self.max_hp == 0:
+            self.max_hp = self.hp
 
     def is_alive(self) -> bool:
         return self.hp > 0
+
+    def effective_atk(self) -> int:
+        """패시브 반영 공격력."""
+        atk = self.atk
+        # beast 광폭: HP 50% 이하 → ATK 1.5배
+        if self.name == 'beast' and self.hp <= self.max_hp * 0.5:
+            atk = round(atk * 1.5)
+        return atk
 
 
 @dataclass
@@ -56,10 +69,10 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             lead_changes += 1
         prev_leader = leader
 
-        # a 공격 (대미지 ±30% 분산 → 역전 기회 증가)
+        # a 공격 (대미지 ±30% 분산 + 패시브 반영)
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
-        dmg = max(1, round(attacker.atk * random.uniform(0.7, 1.3)))
+        dmg = max(1, round(attacker.effective_atk() * random.uniform(0.7, 1.3)))
         target.hp -= dmg
 
         alive_b = [u for u in b if u.is_alive()]
@@ -69,7 +82,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # b 공격
         attacker = alive_b[turn % len(alive_b)]
         target = [u for u in a if u.is_alive()][0]
-        dmg = max(1, round(attacker.atk * random.uniform(0.7, 1.3)))
+        dmg = max(1, round(attacker.effective_atk() * random.uniform(0.7, 1.3)))
         target.hp -= dmg
 
     alive_a = [u for u in a if u.is_alive()]
