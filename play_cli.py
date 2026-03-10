@@ -194,8 +194,8 @@ def interactive_play():
     team: list[Unit] = []
     team_max_hps: list[int] = []
     n_rounds = 9
-    enemies_per_round = [2, 2, 2, 3, 3, 4, 4, 5, 3]
-    enemy_power = [round(p * power_mult, 2) for p in [0.60, 0.85, 0.95, 0.95, 1.0, 1.10, 1.15, 1.2, 1.40]]
+    enemies_per_round = [2, 2, 2, 2, 3, 4, 4, 5, 3]
+    enemy_power = [round(p * power_mult, 2) for p in [0.60, 0.85, 0.95, 1.20, 1.0, 1.10, 1.15, 1.2, 1.40]]
     prev_won = False  # 직전 라운드 승리 여부 (보너스 선택지용)
     just_revived = False  # 부활 직후 플래그
     all_battles = []  # 전투 기록 누적
@@ -208,7 +208,7 @@ def interactive_play():
             1: "달이 떠오른다...",
             2: "숲에서 울음소리가 들린다.",
             3: "안개가 짙어진다.",
-            4: "대지가 진동한다.",
+            4: "강력한 기운이 느껴진다...",
             5: "하늘이 붉게 물든다.",
             6: "그림자가 길어진다.",
             7: "바람이 비명을 지른다.",
