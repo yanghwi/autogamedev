@@ -17,6 +17,7 @@ class Unit:
     hp: int
     atk: int
     max_hp: int = 0  # 패시브 판정용
+    revived: bool = False  # phoenix 부활 여부
 
     def __post_init__(self):
         if self.max_hp == 0:
@@ -24,6 +25,14 @@ class Unit:
 
     def is_alive(self) -> bool:
         return self.hp > 0
+
+    def check_phoenix_revive(self) -> bool:
+        """phoenix: 최초 사망 시 HP 50%로 부활."""
+        if self.name == 'phoenix' and not self.revived and self.hp <= 0:
+            self.hp = max(1, round(self.max_hp * 0.5))
+            self.revived = True
+            return True
+        return False
 
     def effective_atk(self) -> int:
         """패시브 반영 공격력."""
@@ -133,7 +142,10 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                 bonus = max(1, dmg // 3)
                 def_unit.hp -= bonus
             if not def_unit.is_alive():
-                highlights.append(f"턴{turn}: {atk_unit.name}→{def_unit.name} 처치!")
+                if def_unit.check_phoenix_revive():
+                    highlights.append(f"턴{turn}: phoenix 부활! HP {def_unit.hp}")
+                else:
+                    highlights.append(f"턴{turn}: {atk_unit.name}→{def_unit.name} 처치!")
 
         # a 공격
         attacker = alive_a[turn % len(alive_a)]
@@ -180,6 +192,7 @@ def make_random_unit(tier: int = 1, stat_mult: float = 1.0) -> Unit:
         ('bot',   0.9, 1.2),   # 딜러
         ('ghost', 1.1, 0.9),   # 서브탱커
         ('wyrm',  1.2, 0.6),   # 성장형: 낮은 ATK, 턴 경과 시 성장
+        ('phoenix', 0.85, 0.85),  # 부활형: 낮은 스탯, 1회 부활
     ]
     name, hp_mult, atk_mult = random.choice(archetypes)
     base_hp = 25 + tier * 5

@@ -9,7 +9,7 @@ import os
 
 
 ARCHETYPE_ICON = {
-    'beast': '🐺', 'imp': '👿', 'blob': '🫧', 'bot': '🤖', 'ghost': '👻', 'wyrm': '🐉',
+    'beast': '🐺', 'imp': '👿', 'blob': '🫧', 'bot': '🤖', 'ghost': '👻', 'wyrm': '🐉', 'phoenix': '🔥',
 }
 
 PASSIVE_DESC = {
@@ -19,6 +19,7 @@ PASSIVE_DESC = {
     'bot':   '연사: 50% 추가 타격',
     'ghost': '회피: 25% 회피+반격',
     'wyrm':  '성장: 매 4턴 ATK+1',
+    'phoenix': '부활: 최초 사망 시 HP 50%로 부활',
 }
 
 SYNERGY_NOTE = "  ※ 같은 종족 2마리→스탯+15%, 3마리→스탯+30%"
