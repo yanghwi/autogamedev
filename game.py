@@ -57,7 +57,10 @@ def apply_synergy(team: list[Unit]):
     counts = Counter(u.name for u in team)
     for u in team:
         n = counts[u.name]
-        if n >= 3:
+        if n >= 4:
+            u.hp = round(u.hp * 1.50)
+            u.atk = round(u.atk * 1.50)
+        elif n >= 3:
             u.hp = round(u.hp * 1.30)
             u.atk = round(u.atk * 1.30)
         elif n >= 2:
