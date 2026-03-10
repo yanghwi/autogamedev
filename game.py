@@ -118,8 +118,12 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         imp_bonus_a = sum(1 for u in alive_a if u.name == 'imp' and u.is_alive())
         imp_bonus_b = sum(1 for u in alive_b if u.name == 'imp' and u.is_alive())
 
-        def do_attack(atk_unit, def_unit, imp_bonus):
-            base_atk = atk_unit.effective_atk() + imp_bonus
+        # 최후의 발악: 팀에 1마리만 남으면 ATK +50%
+        last_stand_a = 1.5 if len(alive_a) == 1 else 1.0
+        last_stand_b = 1.5 if len(alive_b) == 1 else 1.0
+
+        def do_attack(atk_unit, def_unit, imp_bonus, last_stand=1.0):
+            base_atk = round((atk_unit.effective_atk() + imp_bonus) * last_stand)
             dmg = max(1, round(base_atk * random.uniform(0.3, 1.7)))
             # 크리티컬 히트: 10% 확률로 2배 데미지
             is_crit = random.random() < 0.10
@@ -150,7 +154,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # a 공격
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
-        do_attack(attacker, target, imp_bonus_a)
+        do_attack(attacker, target, imp_bonus_a, last_stand_a)
 
         alive_a = [u for u in a if u.is_alive()]
         alive_b = [u for u in b if u.is_alive()]
@@ -160,7 +164,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # b 공격
         attacker = alive_b[turn % len(alive_b)]
         target = alive_a[0]
-        do_attack(attacker, target, imp_bonus_b)
+        do_attack(attacker, target, imp_bonus_b, last_stand_b)
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
