@@ -73,6 +73,9 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
         dmg = max(1, round(attacker.effective_atk() * random.uniform(0.7, 1.3)))
+        # ghost 회피: 20% 확률로 대미지 무효
+        if target.name == 'ghost' and random.random() < 0.2:
+            dmg = 0
         target.hp -= dmg
 
         alive_b = [u for u in b if u.is_alive()]
@@ -83,6 +86,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         attacker = alive_b[turn % len(alive_b)]
         target = [u for u in a if u.is_alive()][0]
         dmg = max(1, round(attacker.effective_atk() * random.uniform(0.7, 1.3)))
+        if target.name == 'ghost' and random.random() < 0.2:
+            dmg = 0
         target.hp -= dmg
 
     alive_a = [u for u in a if u.is_alive()]
