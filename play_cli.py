@@ -245,6 +245,17 @@ def interactive_play():
             eicon = ARCHETYPE_ICON.get(e.name, '?')
             print(f"    {eicon} {e.name:6s}  HP {e.hp:3d}  ATK {e.atk:2d}")
 
+        # 전력 비교 미리보기
+        my_total_hp = sum(u.hp for u in team if u.is_alive())
+        my_total_atk = sum(u.atk for u in team if u.is_alive())
+        en_total_hp = sum(e.hp for e in enemies)
+        en_total_atk = sum(e.atk for e in enemies)
+        hp_adv = "유리" if my_total_hp > en_total_hp else "불리" if my_total_hp < en_total_hp else "동등"
+        atk_adv = "유리" if my_total_atk > en_total_atk else "불리" if my_total_atk < en_total_atk else "동등"
+        hp_color = C.GREEN if hp_adv == "유리" else C.RED if hp_adv == "불리" else C.YELLOW
+        atk_color = C.GREEN if atk_adv == "유리" else C.RED if atk_adv == "불리" else C.YELLOW
+        print(f"\n  {C.DIM}전력 비교: HP {hp_color}{my_total_hp}{C.RESET}{C.DIM} vs {en_total_hp} ({hp_color}{hp_adv}{C.RESET}{C.DIM})  ATK {atk_color}{my_total_atk}{C.RESET}{C.DIM} vs {en_total_atk} ({atk_color}{atk_adv}{C.RESET}{C.DIM}){C.RESET}")
+
         input("\n  [Enter] 전투 시작...")
 
         # game.py의 battle() 사용 — 로직 항상 동기화
