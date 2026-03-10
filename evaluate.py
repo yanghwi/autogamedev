@@ -115,6 +115,21 @@ def print_report(metrics: dict):
     else:
         print("\n  현재 상태 양호.")
 
+    # 복합 재미 점수 (0~100)
+    m = metrics
+    wr = m['win_rate_random']
+    # 승률: 30~50%가 이상적 (가우시안 피크)
+    wr_score = max(0, 1 - ((wr - 0.40) / 0.20) ** 2) * 25
+    # 의사결정: 높을수록 좋음 (최대 0.5 → 25점)
+    di_score = min(m['decision_impact'] / 0.5, 1.0) * 25
+    # 긴장감: 높을수록 좋음 (최대 0.8 → 25점)
+    tn_score = min(m['tension_ratio'] / 0.8, 1.0) * 25
+    # 다양성: 높을수록 좋음 (최대 3.0 → 25점)
+    dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 25
+    fun_score = round(wr_score + di_score + tn_score + dv_score, 1)
+    print(f"\n  ★ FUN SCORE: {fun_score}/100")
+    print(f"    난이도 {wr_score:.1f}/25  의사결정 {di_score:.1f}/25  긴장감 {tn_score:.1f}/25  다양성 {dv_score:.1f}/25")
+
 
 if __name__ == '__main__':
     metrics = run_evaluation(3000)
