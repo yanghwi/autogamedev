@@ -302,7 +302,15 @@ def interactive_play():
             print(f"\n    {a_color}아군 HP {a_hp_pct}{C.RESET}  vs  {b_color}적군 HP {b_hp_pct}{C.RESET}")
             print()
         print("  ── 전투 결과 ──")
-        print(f"  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
+        # 전투 극적 정도에 따라 코멘트
+        if log.lead_changes >= 3:
+            print(f"  {C.YELLOW}⚡ 숨막히는 접전!{C.RESET}  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
+        elif log.turns >= 15:
+            print(f"  {C.CYAN}⏳ 장기전...{C.RESET}  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
+        elif log.turns <= 5:
+            print(f"  {C.RED}💨 순삭!{C.RESET}  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
+        else:
+            print(f"  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
         print()
         print("  내 팀:")
         for u, mhp in zip(team, team_max_hps):
