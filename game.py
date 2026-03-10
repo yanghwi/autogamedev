@@ -51,10 +51,27 @@ class BattleLog:
     b_units: list = None  # 전투 후 b팀 유닛 상태
 
 
+def apply_synergy(team: list[Unit]):
+    """같은 종족 2+ → 소폭 버프. 3+ → 더 큰 버프."""
+    from collections import Counter
+    counts = Counter(u.name for u in team)
+    for u in team:
+        n = counts[u.name]
+        if n >= 3:
+            u.hp = round(u.hp * 1.15)
+            u.atk = round(u.atk * 1.15)
+        elif n >= 2:
+            u.hp = round(u.hp * 1.08)
+            u.atk = round(u.atk * 1.08)
+        u.max_hp = u.hp
+
+
 def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
     """team_a vs team_b. 배틀 로그 반환."""
     a = [Unit(u.name, u.hp, u.atk) for u in team_a]
     b = [Unit(u.name, u.hp, u.atk) for u in team_b]
+    apply_synergy(a)
+    apply_synergy(b)
     a_max_hp = sum(u.hp for u in a)
     b_max_hp = sum(u.hp for u in b)
 
