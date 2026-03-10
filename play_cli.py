@@ -384,7 +384,30 @@ def interactive_play():
                 syn_parts.append(f"{icon}{n}x{c}(+{pct}%)")
             print(f"  {C.YELLOW}⚡ 시너지 발동: {', '.join(syn_parts)}{C.RESET}")
 
-        input("\n  [Enter] 전투 시작...")
+        # 배치 변경 옵션: R3+, 3마리 이상일 때
+        if round_num >= 3 and len(team) >= 3:
+            print(f"\n  {C.DIM}[F] 전위 변경 — 앞줄 유닛이 적의 집중 공격을 받습니다{C.RESET}")
+            raw_battle = input(f"\n  [Enter] 전투 시작 / [F] 전위 변경: ").strip().lower()
+            if raw_battle == 'f':
+                print(f"\n  {C.BOLD}전위로 세울 유닛 선택:{C.RESET}")
+                for i, u in enumerate(team):
+                    uicon = ARCHETYPE_ICON.get(u.name, '?')
+                    front_tag = f" {C.YELLOW}◀ 현재 전위{C.RESET}" if i == 0 else ""
+                    print(f"    [{i + 1}] {uicon} {u.name:6s}  HP {u.hp:3d}  ATK {u.atk:2d}{front_tag}")
+                while True:
+                    try:
+                        front = int(input(f"  전위 (1-{len(team)}): ")) - 1
+                        if 0 <= front < len(team):
+                            break
+                    except (ValueError, EOFError):
+                        pass
+                if front != 0:
+                    team[0], team[front] = team[front], team[0]
+                    team_max_hps[0], team_max_hps[front] = team_max_hps[front], team_max_hps[0]
+                    ficon = ARCHETYPE_ICON.get(team[0].name, '?')
+                    print(f"  → {ficon} {team[0].name}을(를) 전위로!")
+        else:
+            input("\n  [Enter] 전투 시작...")
 
         # game.py의 battle() 사용 — 로직 항상 동기화
         log = battle(team, enemies)
