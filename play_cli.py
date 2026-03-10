@@ -71,6 +71,37 @@ def fmt_unit(u: Unit, max_hp: int, indent: str = "  ") -> str:
     return f"{indent}{alive} {icon} {name_str} ATK {u.atk:2d}  {hp_bar(u.hp, max_hp)}"
 
 
+def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
+    """게임 종료 후 상세 요약."""
+    from collections import Counter
+    print(f"\n  {C.BOLD}── 게임 요약 ──{C.RESET}")
+    print(f"  라운드: {cleared}/{total}  |  남은 목숨: {'♥' * lives if lives else '없음'}")
+
+    # 팀 구성
+    print(f"\n  {C.BOLD}팀 구성:{C.RESET}")
+    for u, mhp in zip(team, team_max_hps):
+        print(fmt_unit(u, mhp, "    "))
+
+    # 전투 통계
+    total_turns = sum(b.turns for b in all_battles)
+    total_reversals = sum(b.lead_changes for b in all_battles)
+    total_highlights = sum(len(b.highlights) for b in all_battles)
+
+    print(f"\n  {C.BOLD}전투 통계:{C.RESET}")
+    print(f"    총 {len(all_battles)}전 {sum(1 for b in all_battles if b.winner == 'a')}승 {sum(1 for b in all_battles if b.winner == 'b')}패")
+    print(f"    총 턴 수: {total_turns}  |  역전: {total_reversals}회")
+
+    # 시너지 현황
+    counts = Counter(u.name for u in team)
+    synergies = [(n, c) for n, c in counts.items() if c >= 2]
+    if synergies:
+        syn_str = ", ".join(f"{ARCHETYPE_ICON.get(n,'?')}{n}x{c}" for n, c in synergies)
+        print(f"    시너지: {syn_str}")
+
+    # 전략 팁
+    print(f"\n  {C.DIM}팁: 같은 종족을 모으면 시너지 보너스! (2+→스탯 UP){C.RESET}")
+
+
 def interactive_play():
     clear()
     print(f"{C.MAGENTA}{C.BOLD}{'=' * 50}")
@@ -215,10 +246,7 @@ def interactive_play():
 
         if not won and lives <= 0:
             print(f"\n  {C.RED}{C.BOLD}─── GAME OVER ───{C.RESET}")
-            print(f"  {round_num - 1}/{n_rounds} 라운드 클리어")
-            print(f"  팀원: {', '.join(ARCHETYPE_ICON.get(u.name,'?') + u.name for u in team)}")
-            total_lead_changes = sum(b.lead_changes for b in all_battles)
-            print(f"  총 역전: {total_lead_changes}회")
+            _show_game_summary(team, team_max_hps, all_battles, round_num - 1, n_rounds, 0)
             retry = input("\n  다시 도전? (y/n): ").strip().lower()
             if retry == 'y':
                 interactive_play()
@@ -229,9 +257,7 @@ def interactive_play():
 
     print()
     print(f"  {C.YELLOW}{C.BOLD}★★★ 전 라운드 클리어! ★★★{C.RESET}")
-    print(f"  팀원: {', '.join(ARCHETYPE_ICON.get(u.name,'?') + u.name for u in team)}")
-    total_lead_changes = sum(b.lead_changes for b in all_battles)
-    print(f"  총 역전: {total_lead_changes}회  |  남은 목숨: {'♥' * lives}")
+    _show_game_summary(team, team_max_hps, all_battles, n_rounds, n_rounds, lives)
     retry = input("\n  다시 도전? (y/n): ").strip().lower()
     if retry == 'y':
         interactive_play()
