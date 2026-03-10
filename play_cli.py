@@ -138,13 +138,18 @@ def interactive_play():
         for i, post in enumerate(log.b_units):
             enemies[i].hp = post.hp
 
-        # 결과 표시
+        # 전투 연출 — 하이라이트를 극적으로 표시
+        import time
         print()
+        if log.highlights:
+            print("  ── 전투 진행 ──")
+            for h in log.highlights:
+                icon = "💥" if "크리티컬" in h else "👻" if "회피" in h else "🔥" if "부활" in h else "💀" if "처치" in h else "⚔️" if "역전" in h else "⚡"
+                print(f"    {icon} {h}")
+                time.sleep(0.3)
+            print()
         print("  ── 전투 결과 ──")
         print(f"  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
-        if log.highlights:
-            for h in log.highlights:
-                print(f"    ⚡ {h}")
         print()
         print("  내 팀:")
         for u, mhp in zip(team, team_max_hps):
