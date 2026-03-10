@@ -4,7 +4,7 @@ Midnight Bestiary — 인간 플레이 모드 (터미널)
 실행: python3 play_cli.py
 """
 
-from game import Unit, make_random_unit, battle, ARCHETYPE_MAP
+from game import Unit, make_random_unit, battle, ARCHETYPE_MAP, ARCHETYPES
 import os
 
 
@@ -336,14 +336,30 @@ def interactive_play():
             ep *= 0.85  # 부활 직후: 적 15% 약화
             just_revived = False
             print(f"  {C.CYAN}부활 효과: 적이 약해졌다!{C.RESET}")
-        enemies = [make_random_unit(tier=round_num, stat_mult=ep)
-                   for _ in range(n_enemies)]
+        # R7+: 30% 확률로 적 테마 팀 (game.py와 동일)
+        import random as _rng
+        if round_num >= 7 and n_enemies >= 3 and _rng.random() < 0.3:
+            theme = _rng.choice([a[0] for a in ARCHETYPES])
+            enemies = [make_random_unit(tier=round_num, stat_mult=ep, archetype=theme)
+                       for _ in range(2)]
+            enemies += [make_random_unit(tier=round_num, stat_mult=ep)
+                        for _ in range(n_enemies - 2)]
+        else:
+            enemies = [make_random_unit(tier=round_num, stat_mult=ep)
+                       for _ in range(n_enemies)]
         enemy_max_hps = [e.hp for e in enemies]
 
         print(f"\n  적 {n_enemies}마리 출현!")
         for e in enemies:
             eicon = ARCHETYPE_ICON.get(e.name, '?')
             print(f"    {eicon} {e.name:6s}  HP {e.hp:3d}  ATK {e.atk:2d}")
+        # 적 시너지 경고
+        from collections import Counter
+        en_counts = Counter(e.name for e in enemies)
+        en_synergies = [(n, c) for n, c in en_counts.items() if c >= 2]
+        if en_synergies:
+            en_syn_str = ", ".join(f"{ARCHETYPE_ICON.get(n,'?')}{n}x{c}" for n, c in en_synergies)
+            print(f"    {C.RED}⚠ 적 시너지: {en_syn_str} — 강화된 적이다!{C.RESET}")
 
         # 전력 비교 미리보기
         my_total_hp = sum(u.hp for u in team if u.is_alive())
