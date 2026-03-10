@@ -192,7 +192,7 @@ def make_random_unit(tier: int = 1, stat_mult: float = 1.0) -> Unit:
         ('bot',   0.9, 1.2),   # 딜러
         ('ghost', 1.1, 0.9),   # 서브탱커
         ('wyrm',  1.2, 0.6),   # 성장형: 낮은 ATK, 턴 경과 시 성장
-        ('phoenix', 0.85, 0.85),  # 부활형: 낮은 스탯, 1회 부활
+        ('phoenix', 1.0, 0.8),  # 부활형: 평균 HP, 낮은 ATK, 1회 부활
     ]
     name, hp_mult, atk_mult = random.choice(archetypes)
     base_hp = 25 + tier * 5
