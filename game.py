@@ -191,6 +191,7 @@ def play(strategy=None) -> GameResult:
     battles: list[BattleLog] = []
     choice_outcomes: list[bool] = []
     n_rounds = 7  # 7라운드: 더 긴 진행감 곡선
+    lives = 2  # 목숨 2개: 첫 패배는 생존, 두 번째가 게임오버
 
     for round_num in range(1, n_rounds + 1):
         # 드래프트: 4개 중 1개 선택 — 더 넓은 선택지로 전략적 깊이 증가
@@ -227,14 +228,20 @@ def play(strategy=None) -> GameResult:
                     u.hp = min(max_hp, u.hp + round(max_hp * 0.15))
 
         if not won_round:
-            return GameResult(
-                won=False,
-                rounds_cleared=round_num - 1,
-                total_rounds=n_rounds,
-                battles=battles,
-                choices_made=round_num,
-                choice_outcomes=choice_outcomes,
-            )
+            lives -= 1
+            if lives <= 0:
+                return GameResult(
+                    won=False,
+                    rounds_cleared=round_num - 1,
+                    total_rounds=n_rounds,
+                    battles=battles,
+                    choices_made=round_num,
+                    choice_outcomes=choice_outcomes,
+                )
+            # 부활: 전 유닛 HP 30%로 회복하고 계속
+            for u in team:
+                max_hp = 25 + round_num * 5 + 5
+                u.hp = max(1, round(max_hp * 0.3))
 
     return GameResult(
         won=True,
