@@ -287,7 +287,7 @@ def play(strategy=None) -> GameResult:
         enemy_power = [0.60, 0.85, 0.95, 1.20, 1.0, 1.10, 1.15, 1.2, 1.40]
         power = enemy_power[round_num - 1]
         if just_revived:
-            power *= 0.90  # 부활 직후: 적 10% 약화 (회복 기회)
+            power *= 0.85  # 부활 직후: 적 15% 약화 (회복 기회)
             just_revived = False
         enemies = [make_random_unit(tier=round_num, stat_mult=power)
                    for _ in range(n_enemies)]
