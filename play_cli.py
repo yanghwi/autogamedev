@@ -383,6 +383,12 @@ def interactive_play():
 
         if not won and lives <= 0:
             print(f"\n  {C.RED}{C.BOLD}─── GAME OVER ───{C.RESET}")
+            if round_num >= 7:
+                print(f"  {C.DIM}R{round_num}까지 도달 — 거의 다 왔었다!{C.RESET}")
+            elif round_num >= 4:
+                print(f"  {C.DIM}중반까지 도달. 시너지를 노려보세요!{C.RESET}")
+            else:
+                print(f"  {C.DIM}초반 탈락. HP 높은 유닛으로 버텨보세요!{C.RESET}")
             _show_game_summary(team, team_max_hps, all_battles, round_num - 1, n_rounds, 0)
             retry = input("\n  다시 도전? (y/n): ").strip().lower()
             if retry == 'y':
@@ -393,7 +399,15 @@ def interactive_play():
             input("\n  [Enter] 다음 라운드...")
 
     print()
-    print(f"  {C.YELLOW}{C.BOLD}★★★ 전 라운드 클리어! ★★★{C.RESET}")
+    import time
+    for ch in "  ★★★ 전 라운드 클리어! ★★★":
+        print(f"{C.YELLOW}{C.BOLD}{ch}{C.RESET}", end='', flush=True)
+        time.sleep(0.05)
+    print()
+    if lives == max_lives:
+        print(f"  {C.GREEN}무패 클리어! 완벽합니다!{C.RESET}")
+    elif lives == max_lives - 1:
+        print(f"  {C.CYAN}아슬아슬한 클리어!{C.RESET}")
     _show_game_summary(team, team_max_hps, all_battles, n_rounds, n_rounds, lives)
     retry = input("\n  다시 도전? (y/n): ").strip().lower()
     if retry == 'y':
