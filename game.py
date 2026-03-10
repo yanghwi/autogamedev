@@ -301,10 +301,10 @@ def play(strategy=None) -> GameResult:
                     choices_made=round_num,
                     choice_outcomes=choice_outcomes,
                 )
-            # 부활: 전 유닛 HP 40%로 회복하고 계속
+            # 부활: 전 유닛 HP 50%로 회복하고 계속
             for u in team:
                 max_hp = 25 + round_num * 5 + 5
-                u.hp = max(1, round(max_hp * 0.4))
+                u.hp = max(1, round(max_hp * 0.5))
 
     return GameResult(
         won=True,
