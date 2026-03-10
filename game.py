@@ -194,8 +194,11 @@ def play(strategy=None) -> GameResult:
     lives = 2  # 목숨 2개: 첫 패배는 생존, 두 번째가 게임오버
 
     for round_num in range(1, n_rounds + 1):
-        # 드래프트: 4개 중 1개 선택 — 더 넓은 선택지로 전략적 깊이 증가
-        choices = [make_random_unit(tier=round_num) for _ in range(4)]
+        # 드래프트: 기본 4개, 직전 라운드 승리 시 +1 보너스 선택지
+        n_choices = 4
+        if round_num > 1 and choice_outcomes and choice_outcomes[-1]:
+            n_choices = 5  # 승리 보상: 선택지 확대
+        choices = [make_random_unit(tier=round_num) for _ in range(n_choices)]
         if strategy:
             import inspect
             sig = inspect.signature(strategy)
