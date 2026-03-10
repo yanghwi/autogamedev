@@ -8,8 +8,28 @@ from game import Unit, make_random_unit, battle
 import os
 
 
+# ANSI 색상
+class C:
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    BG_RED = '\033[41m'
+
+
 ARCHETYPE_ICON = {
     'beast': '🐺', 'imp': '👿', 'blob': '🫧', 'bot': '🤖', 'ghost': '👻', 'wyrm': '🐉', 'phoenix': '🔥',
+}
+
+ARCHETYPE_COLOR = {
+    'beast': C.RED, 'imp': C.MAGENTA, 'blob': C.CYAN, 'bot': C.WHITE,
+    'ghost': C.DIM, 'wyrm': C.GREEN, 'phoenix': C.YELLOW,
 }
 
 PASSIVE_DESC = {
@@ -32,20 +52,30 @@ def clear():
 def hp_bar(current: int, maximum: int, width: int = 16) -> str:
     ratio = max(0, current / maximum) if maximum > 0 else 0
     filled = round(ratio * width)
-    return f"[{'█' * filled}{'░' * (width - filled)}] {current}/{maximum}"
+    # 색상: 초록(>50%) → 노랑(>25%) → 빨강(≤25%)
+    if ratio > 0.5:
+        color = C.GREEN
+    elif ratio > 0.25:
+        color = C.YELLOW
+    else:
+        color = C.RED
+    bar = f"{color}{'█' * filled}{C.DIM}{'░' * (width - filled)}{C.RESET}"
+    return f"[{bar}] {current}/{maximum}"
 
 
 def fmt_unit(u: Unit, max_hp: int, indent: str = "  ") -> str:
     icon = ARCHETYPE_ICON.get(u.name, '?')
+    color = ARCHETYPE_COLOR.get(u.name, '')
     alive = "  " if u.is_alive() else "💀"
-    return f"{indent}{alive} {icon} {u.name:6s} ATK {u.atk:2d}  {hp_bar(u.hp, max_hp)}"
+    name_str = f"{color}{u.name:6s}{C.RESET}" if u.is_alive() else f"{C.DIM}{u.name:6s}{C.RESET}"
+    return f"{indent}{alive} {icon} {name_str} ATK {u.atk:2d}  {hp_bar(u.hp, max_hp)}"
 
 
 def interactive_play():
     clear()
-    print("=" * 50)
+    print(f"{C.MAGENTA}{C.BOLD}{'=' * 50}")
     print("  ☽ MIDNIGHT BESTIARY ☾")
-    print("=" * 50)
+    print(f"{'=' * 50}{C.RESET}")
     print()
     print("  8라운드를 생존하라. (목숨 2개)")
     print("  매 라운드, 4마리 중 1마리를 드래프트한다.")
@@ -161,18 +191,18 @@ def interactive_play():
         print()
 
         if won:
-            print("  ✦ 승리!")
+            print(f"  {C.GREEN}{C.BOLD}✦ 승리!{C.RESET}")
         else:
             lives -= 1
             if lives > 0:
-                print(f"  ✘ 패배... 하지만 아직 목숨 {lives}개 남음!")
+                print(f"  {C.YELLOW}✘ 패배... 하지만 아직 목숨 {lives}개 남음!{C.RESET}")
                 print("  (전원 HP 30%로 부활)")
                 for i, u in enumerate(team):
                     max_hp = 25 + round_num * 5 + 5
                     u.hp = max(1, round(max_hp * 0.3))
                     team_max_hps[i] = max(team_max_hps[i], u.hp)
             else:
-                print("  ✘ 패배...")
+                print(f"  {C.RED}{C.BOLD}✘ 패배...{C.RESET}")
 
         prev_won = won
 
@@ -184,7 +214,7 @@ def interactive_play():
             print("  (생존 유닛 HP 15% 회복 + 다음 드래프트 선택지 +1)")
 
         if not won and lives <= 0:
-            print(f"\n  ─── GAME OVER ───")
+            print(f"\n  {C.RED}{C.BOLD}─── GAME OVER ───{C.RESET}")
             print(f"  {round_num - 1}/{n_rounds} 라운드 클리어")
             print(f"  팀원: {', '.join(ARCHETYPE_ICON.get(u.name,'?') + u.name for u in team)}")
             total_lead_changes = sum(b.lead_changes for b in all_battles)
@@ -198,7 +228,7 @@ def interactive_play():
             input("\n  [Enter] 다음 라운드...")
 
     print()
-    print("  ★★★ 전 라운드 클리어! ★★★")
+    print(f"  {C.YELLOW}{C.BOLD}★★★ 전 라운드 클리어! ★★★{C.RESET}")
     print(f"  팀원: {', '.join(ARCHETYPE_ICON.get(u.name,'?') + u.name for u in team)}")
     total_lead_changes = sum(b.lead_changes for b in all_battles)
     print(f"  총 역전: {total_lead_changes}회  |  남은 목숨: {'♥' * lives}")
