@@ -156,8 +156,8 @@ def print_report(metrics: dict):
     tn_score = min(m['tension_ratio'] / 0.8, 1.0) * 14
     # 박빙: 승자 HP<30% 비율 (최대 0.5 → 14점)
     cf_score = min(m['close_finish_rate'] / 0.5, 1.0) * 14
-    # 다양성: 높을수록 좋음 (최대 3.0 → 14점)
-    dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 14
+    # 다양성: 높을수록 좋음 (최대 2.85 → 14점, 9라운드 현실적 상한)
+    dv_score = min(m['diversity_entropy'] / 2.85, 1.0) * 14
     # 전략 다양성: 모든 전략이 랜덤 이상이면 만점 (14점)
     st_score = m['strategies_above_random'] * 14
     # 역전 드라마: comeback_rate (최대 0.15 → 14점)
