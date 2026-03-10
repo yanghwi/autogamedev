@@ -69,14 +69,20 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             lead_changes += 1
         prev_leader = leader
 
-        # a 공격 (대미지 ±30% 분산 + 패시브 반영)
+        def do_attack(atk_unit, def_unit):
+            dmg = max(1, round(atk_unit.effective_atk() * random.uniform(0.7, 1.3)))
+            if def_unit.name == 'ghost' and random.random() < 0.2:
+                dmg = 0  # ghost 회피
+            def_unit.hp -= dmg
+            # bot 연사: 50% 확률로 약한 추가 타격
+            if atk_unit.name == 'bot' and random.random() < 0.5:
+                bonus = max(1, dmg // 3)
+                def_unit.hp -= bonus
+
+        # a 공격
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
-        dmg = max(1, round(attacker.effective_atk() * random.uniform(0.7, 1.3)))
-        # ghost 회피: 20% 확률로 대미지 무효
-        if target.name == 'ghost' and random.random() < 0.2:
-            dmg = 0
-        target.hp -= dmg
+        do_attack(attacker, target)
 
         alive_b = [u for u in b if u.is_alive()]
         if not alive_b:
@@ -85,10 +91,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         # b 공격
         attacker = alive_b[turn % len(alive_b)]
         target = [u for u in a if u.is_alive()][0]
-        dmg = max(1, round(attacker.effective_atk() * random.uniform(0.7, 1.3)))
-        if target.name == 'ghost' and random.random() < 0.2:
-            dmg = 0
-        target.hp -= dmg
+        do_attack(attacker, target)
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
