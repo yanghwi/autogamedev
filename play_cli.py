@@ -304,7 +304,10 @@ def interactive_play():
         bonus_tag = " (+1 보너스!)" if n_choices == 5 else ""
         print(f"  드래프트{bonus_tag} — 하나를 선택하세요:")
         if round_num == 1:
-            print(f"  {C.DIM}(첫 유닛! 높은 ATK=공격력, 높은 HP=생존력. 패시브도 확인!){C.RESET}")
+            print(f"  {C.DIM}(첫 유닛! 🐺beast=화력폭발, 🫧blob=탱커, 🤖bot=연사, 🐉wyrm=성장형){C.RESET}")
+            print(f"  {C.DIM}(같은 종족을 모으면 시너지 보너스! 이것이 승리의 핵심){C.RESET}")
+        elif round_num == 2:
+            print(f"  {C.DIM}(R1에서 뽑은 종족과 같은 종족을 노려보세요 → 시너지!){C.RESET}")
         print()
         from collections import Counter
         team_counts = Counter(u.name for u in team)
