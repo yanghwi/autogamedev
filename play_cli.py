@@ -12,6 +12,16 @@ ARCHETYPE_ICON = {
     'beast': '🐺', 'imp': '👿', 'blob': '🫧', 'bot': '🤖', 'ghost': '👻',
 }
 
+PASSIVE_DESC = {
+    'beast': '광폭: HP 50%↓ → ATK 1.5x',
+    'imp':   '사기진작: imp 수만큼 팀 ATK+1',
+    'blob':  '경화: 받는 피해 -20%',
+    'bot':   '연사: 50% 추가 타격',
+    'ghost': '회피: 25% 회피+반격',
+}
+
+SYNERGY_NOTE = "  ※ 같은 종족 2마리→스탯+15%, 3마리→스탯+30%"
+
 
 def clear():
     os.system('clear' if os.name != 'nt' else 'cls')
@@ -38,13 +48,15 @@ def interactive_play():
     print("  7라운드를 생존하라.")
     print("  매 라운드, 3마리 중 1마리를 드래프트한다.")
     print()
+    print(SYNERGY_NOTE)
+    print()
     input("  [Enter] 시작...")
 
     team: list[Unit] = []
     team_max_hps: list[int] = []
     n_rounds = 7
     enemies_per_round = [1, 2, 2, 3, 3, 4, 4]
-    enemy_power = [0.9, 0.8, 0.95, 0.95, 1.0, 1.05, 1.1]
+    enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2]
 
     for round_num in range(1, n_rounds + 1):
         clear()
@@ -55,6 +67,14 @@ def interactive_play():
             print("  현재 팀:")
             for u, mhp in zip(team, team_max_hps):
                 print(fmt_unit(u, mhp, "    "))
+            # 시너지 현황
+            from collections import Counter
+            counts = Counter(u.name for u in team if u.is_alive())
+            synergies = [(name, cnt) for name, cnt in counts.items() if cnt >= 2]
+            if synergies:
+                syn_str = ", ".join(f"{ARCHETYPE_ICON.get(n,'?')}{n}x{c}({'+'}{15 if c==2 else 30}%)"
+                                     for n, c in synergies)
+                print(f"    시너지: {syn_str}")
             print()
 
         # 드래프트
@@ -63,7 +83,8 @@ def interactive_play():
         print()
         for i, c in enumerate(choices):
             icon = ARCHETYPE_ICON.get(c.name, '?')
-            print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}")
+            passive = PASSIVE_DESC.get(c.name, '')
+            print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}  ({passive})")
         print()
 
         while True:
