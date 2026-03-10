@@ -297,8 +297,10 @@ def synergy_strategy(choices: list[Unit], round_num: int, team: list = None) -> 
     def score(i):
         c = choices[i]
         # 시너지 보너스: 이미 같은 종족이 있으면 크게 가산
-        syn = counts.get(c.name, 0) * 20
-        return c.atk + c.hp + syn
+        syn = counts.get(c.name, 0) * 25
+        # wyrm 초반 가치: 일찍 뽑을수록 성장 시간 ↑
+        wyrm_bonus = 10 if c.name == 'wyrm' and round_num <= 3 else 0
+        return c.atk + c.hp + syn + wyrm_bonus
     return max(range(len(choices)), key=score)
 
 
