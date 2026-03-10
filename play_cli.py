@@ -667,6 +667,111 @@ def interactive_play():
     elif lives == max_lives - 1:
         print(f"  {C.CYAN}아슬아슬한 클리어!{C.RESET}")
     _show_game_summary(team, team_max_hps, all_battles, n_rounds, n_rounds, lives)
+
+    # 무한 모드: 클리어 후 계속 도전
+    endless = input("\n  🌙 무한 모드에 도전? (y/n): ").strip().lower()
+    if endless == 'y':
+        print(f"\n  {C.MAGENTA}{C.BOLD}── ENDLESS MODE ──{C.RESET}")
+        print(f"  {C.DIM}적이 점점 강해집니다. 몇 라운드까지 갈 수 있는가?{C.RESET}")
+        bonus_round = 0
+        while True:
+            bonus_round += 1
+            total_round = n_rounds + bonus_round
+            clear()
+            lives_str = "♥" * lives + "♡" * (max_lives - lives)
+            print(f"  {C.MAGENTA}{C.BOLD}══ ENDLESS R{bonus_round}  (총 R{total_round})  {lives_str} ══{C.RESET}")
+            # 드래프트
+            n_choices = 5 if prev_won else 4
+            import random as _rng
+            choices = [make_random_unit(tier=min(total_round, 15)) for _ in range(n_choices)]
+            if team:
+                team_names_set = [u.name for u in team]
+                if not any(c.name in team_names_set for c in choices):
+                    target_name = _rng.choice(team_names_set)
+                    choices[-1] = make_random_unit(tier=min(total_round, 15), archetype=target_name)
+            print(f"\n  드래프트 — 하나를 선택하세요:")
+            from collections import Counter
+            team_counts = Counter(u.name for u in team)
+            for i, c in enumerate(choices):
+                icon = ARCHETYPE_ICON.get(c.name, '?')
+                existing = team_counts.get(c.name, 0)
+                syn_tag = f" {C.GREEN}★ 시너지!{C.RESET}" if existing >= 1 else ""
+                print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}{syn_tag}")
+            # 교체 옵션
+            can_swap = len(team) >= 3
+            if can_swap:
+                print(f"    {C.DIM}[S] 교체{C.RESET}")
+            print()
+            while True:
+                try:
+                    raw = input(f"  선택 (1-{n_choices}{', S' if can_swap else ''}): ").strip()
+                    if can_swap and raw.lower() == 's':
+                        print(f"\n  {C.BOLD}영입할 유닛:{C.RESET}")
+                        for i, c in enumerate(choices):
+                            print(f"    [{i + 1}] {ARCHETYPE_ICON.get(c.name, '?')} {c.name}  HP {c.hp}  ATK {c.atk}")
+                        recruit = int(input(f"  영입 (1-{n_choices}): ")) - 1
+                        print(f"\n  {C.BOLD}방출할 유닛:{C.RESET}")
+                        for i, u in enumerate(team):
+                            print(f"    [{i + 1}] {ARCHETYPE_ICON.get(u.name, '?')} {u.name}  HP {u.hp}  ATK {u.atk}")
+                        release = int(input(f"  방출 (1-{len(team)}): ")) - 1
+                        team.pop(release)
+                        team_max_hps.pop(release)
+                        chosen = choices[recruit]
+                        team.append(chosen)
+                        team_max_hps.append(chosen.hp)
+                        break
+                    pick = int(raw) - 1
+                    if 0 <= pick < n_choices:
+                        chosen = choices[pick]
+                        team.append(chosen)
+                        team_max_hps.append(chosen.hp)
+                        break
+                except (ValueError, EOFError):
+                    pass
+            # 적 생성 — 점점 강해짐
+            ep = 1.40 + bonus_round * 0.15
+            n_enemies = min(3 + bonus_round // 2, 6)
+            enemies = [make_random_unit(tier=min(total_round, 15), stat_mult=ep)
+                       for _ in range(n_enemies)]
+            enemy_max_hps = [e.hp for e in enemies]
+            print(f"\n  적 {n_enemies}마리 출현! (파워 x{ep:.2f})")
+            for e in enemies:
+                eicon = ARCHETYPE_ICON.get(e.name, '?')
+                print(f"    {eicon} {e.name:6s}  HP {e.hp:3d}  ATK {e.atk:2d}")
+            input("\n  [Enter] 전투 시작...")
+            log = battle(team, enemies)
+            all_battles.append(log)
+            won = log.winner == 'a'
+            for i, post in enumerate(log.a_units):
+                team[i].hp = post.hp
+            import time
+            if log.highlights:
+                for h in log.highlights[-5:]:
+                    print(f"    ⚡ {h}")
+                    time.sleep(0.15)
+            if won:
+                print(f"\n  {C.GREEN}{C.BOLD}✦ 무한 R{bonus_round} 승리!{C.RESET}")
+                for u in team:
+                    if u.is_alive():
+                        max_hp = 25 + min(total_round, 15) * 5 + 5
+                        u.hp = min(max_hp, u.hp + round(max_hp * 0.15))
+                prev_won = True
+            else:
+                lives -= 1
+                if lives > 0:
+                    print(f"  {C.YELLOW}✘ 패배... 목숨 {lives}개 남음!{C.RESET}")
+                    for i, u in enumerate(team):
+                        max_hp = 25 + min(total_round, 15) * 5 + 5
+                        u.hp = max(1, round(max_hp * 0.5))
+                        team_max_hps[i] = max(team_max_hps[i], u.hp)
+                    prev_won = False
+                else:
+                    print(f"\n  {C.RED}{C.BOLD}── ENDLESS 종료: R{bonus_round} (총 R{total_round}) ──{C.RESET}")
+                    _show_game_summary(team, team_max_hps, all_battles, total_round, total_round, 0)
+                    break
+            if won:
+                input("\n  [Enter] 다음 라운드...")
+
     retry = input("\n  다시 도전? (y/n): ").strip().lower()
     if retry == 'y':
         interactive_play()
