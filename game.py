@@ -190,19 +190,25 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
 
 # ===== 유닛 풀 (에이전트가 진화시킬 부분) =====
 
-def make_random_unit(tier: int = 1, stat_mult: float = 1.0) -> Unit:
-    """티어에 따라 유닛 생성. 아키타입별 스탯 분화로 전투 긴장감 증가."""
-    # 아키타입: (이름, HP배율, ATK배율) — 총 파워 유사하되 배분이 다름
-    archetypes = [
-        ('beast', 0.8, 1.4),   # 유리포: 낮은 HP, 높은 ATK
-        ('imp',   1.0, 1.0),   # 균형형
-        ('blob',  1.3, 0.7),   # 탱커: 높은 HP, 낮은 ATK
-        ('bot',   0.9, 1.2),   # 딜러
-        ('ghost', 1.1, 0.9),   # 서브탱커
-        ('wyrm',  1.2, 0.6),   # 성장형: 낮은 ATK, 턴 경과 시 성장
-        ('phoenix', 1.0, 0.8),  # 부활형: 평균 HP, 낮은 ATK, 1회 부활
-    ]
-    name, hp_mult, atk_mult = random.choice(archetypes)
+ARCHETYPES = [
+    ('beast', 0.8, 1.4),   # 유리포: 낮은 HP, 높은 ATK
+    ('imp',   1.0, 1.0),   # 균형형
+    ('blob',  1.3, 0.7),   # 탱커: 높은 HP, 낮은 ATK
+    ('bot',   0.9, 1.2),   # 딜러
+    ('ghost', 1.1, 0.9),   # 서브탱커
+    ('wyrm',  1.2, 0.6),   # 성장형: 낮은 ATK, 턴 경과 시 성장
+    ('phoenix', 1.0, 0.8),  # 부활형: 평균 HP, 낮은 ATK, 1회 부활
+]
+ARCHETYPE_MAP = {name: (hp_m, atk_m) for name, hp_m, atk_m in ARCHETYPES}
+
+
+def make_random_unit(tier: int = 1, stat_mult: float = 1.0, archetype: str = None) -> Unit:
+    """티어에 따라 유닛 생성. archetype 지정 시 해당 아키타입으로 생성."""
+    if archetype and archetype in ARCHETYPE_MAP:
+        name = archetype
+        hp_mult, atk_mult = ARCHETYPE_MAP[archetype]
+    else:
+        name, hp_mult, atk_mult = random.choice(ARCHETYPES)
     base_hp = 25 + tier * 5
     base_atk = 3 + tier * 1
     return Unit(
@@ -243,6 +249,14 @@ def play(strategy=None) -> GameResult:
         if round_num > 1 and choice_outcomes and choice_outcomes[-1]:
             n_choices = 5  # 승리 보상: 선택지 확대
         choices = [make_random_unit(tier=round_num) for _ in range(n_choices)]
+        # R3 이후: 선택지 중 1개를 팀 종족으로 보장 (시너지 빌드 지원)
+        if team and round_num >= 3:
+            team_names = [u.name for u in team]
+            if not any(c.name in team_names for c in choices):
+                # 선택지에 팀 종족이 없으면 마지막 슬롯을 교체
+                target_name = random.choice(team_names)
+                replacement = make_random_unit(tier=round_num, archetype=target_name)
+                choices[-1] = replacement
         if strategy:
             import inspect
             sig = inspect.signature(strategy)
