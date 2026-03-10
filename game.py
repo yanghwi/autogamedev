@@ -160,20 +160,13 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                 else:
                     highlights.append(f"턴{turn}: {atk_unit.name}→{def_unit.name} 처치!")
 
-        # a 공격 (b가 열세면 a의 공격이 약해짐)
-        attacker = alive_a[turn % len(alive_a)]
-        target = alive_b[0]
-        do_attack(attacker, target, imp_bonus_a, last_stand_a, underdog_b)
-
-        alive_a = [u for u in a if u.is_alive()]
-        alive_b = [u for u in b if u.is_alive()]
-        if not alive_a or not alive_b:
-            break
-
-        # b 공격 (a가 열세면 b의 공격이 약해짐)
-        attacker = alive_b[turn % len(alive_b)]
-        target = alive_a[0]
-        do_attack(attacker, target, imp_bonus_b, last_stand_b, underdog_a)
+        # 동시 공격: 양팀이 동시에 공격 (선공 유리 제거)
+        attacker_a = alive_a[turn % len(alive_a)]
+        target_a = alive_b[0]
+        attacker_b = alive_b[turn % len(alive_b)]
+        target_b = alive_a[0]
+        do_attack(attacker_a, target_a, imp_bonus_a, last_stand_a, underdog_b)
+        do_attack(attacker_b, target_b, imp_bonus_b, last_stand_b, underdog_a)
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
