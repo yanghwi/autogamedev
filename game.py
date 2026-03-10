@@ -274,7 +274,7 @@ def play(strategy=None) -> GameResult:
         # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
         enemies_per_round = [2, 2, 2, 3, 3, 4, 4, 5, 3]  # R1: 2마리로 시작, R9: 보스전
         n_enemies = enemies_per_round[round_num - 1]
-        enemy_power = [0.55, 0.8, 0.95, 0.95, 1.0, 1.05, 1.15, 1.2, 1.35]
+        enemy_power = [0.55, 0.8, 0.95, 0.95, 1.0, 1.10, 1.15, 1.2, 1.35]
         enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
                    for _ in range(n_enemies)]
 
