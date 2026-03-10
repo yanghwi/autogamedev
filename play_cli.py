@@ -397,14 +397,29 @@ def interactive_play():
         if won:
             print(f"  {C.GREEN}{C.BOLD}✦ 승리!{C.RESET}")
         else:
-            # 패배 분석
+            # 패배 분석 — 다중 원인 진단
+            from collections import Counter
+            loss_reasons = []
             alive_enemies = [e for e in enemies if e.hp > 0]
             if alive_enemies:
                 strongest = max(alive_enemies, key=lambda e: e.atk)
                 eicon = ARCHETYPE_ICON.get(strongest.name, '?')
-                print(f"  {C.DIM}패인: {eicon}{strongest.name}(ATK {strongest.atk})이 너무 강했다{C.RESET}")
+                loss_reasons.append(f"{eicon}{strongest.name}(ATK {strongest.atk})이 너무 강했다")
             if len(team) < n_enemies:
-                print(f"  {C.DIM}수적 열세 ({len(team)} vs {n_enemies}) — 더 많은 유닛이 필요{C.RESET}")
+                loss_reasons.append(f"수적 열세 ({len(team)} vs {n_enemies})")
+            loss_counts = Counter(u.name for u in team)
+            if all(c < 2 for c in loss_counts.values()):
+                loss_reasons.append("시너지 없음 — 같은 종족을 모아보세요")
+            my_atk = sum(u.atk for u in team)
+            en_hp = sum(e.hp for e in enemies)
+            if my_atk * 3 < en_hp:
+                loss_reasons.append("화력 부족 — ATK 높은 유닛이 필요")
+            if log.turns <= 5:
+                loss_reasons.append("너무 빨리 전멸 — 탱커(blob)가 필요할 수도")
+            if loss_reasons:
+                print(f"  {C.DIM}패인 분석:{C.RESET}")
+                for reason in loss_reasons[:3]:
+                    print(f"    {C.DIM}• {reason}{C.RESET}")
             lives -= 1
             if lives > 0:
                 print(f"  {C.YELLOW}✘ 패배... 하지만 아직 목숨 {lives}개 남음!{C.RESET}")
