@@ -45,7 +45,7 @@ def interactive_play():
     print("  ☽ MIDNIGHT BESTIARY ☾")
     print("=" * 50)
     print()
-    print("  7라운드를 생존하라. (목숨 2개)")
+    print("  8라운드를 생존하라. (목숨 2개)")
     print("  매 라운드, 4마리 중 1마리를 드래프트한다.")
     print()
     print(SYNERGY_NOTE)
@@ -54,10 +54,10 @@ def interactive_play():
 
     team: list[Unit] = []
     team_max_hps: list[int] = []
-    n_rounds = 7
+    n_rounds = 8
     lives = 2
-    enemies_per_round = [1, 2, 2, 3, 3, 4, 4]
-    enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2]
+    enemies_per_round = [1, 2, 2, 3, 3, 4, 4, 5]
+    enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2, 1.3]
 
     for round_num in range(1, n_rounds + 1):
         clear()
