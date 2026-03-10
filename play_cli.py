@@ -88,8 +88,27 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
     total_highlights = sum(len(b.highlights) for b in all_battles)
 
     print(f"\n  {C.BOLD}전투 통계:{C.RESET}")
-    print(f"    총 {len(all_battles)}전 {sum(1 for b in all_battles if b.winner == 'a')}승 {sum(1 for b in all_battles if b.winner == 'b')}패")
+    wins = sum(1 for b in all_battles if b.winner == 'a')
+    losses = sum(1 for b in all_battles if b.winner == 'b')
+    print(f"    총 {len(all_battles)}전 {wins}승 {losses}패")
+    # 라운드별 승패 타임라인
+    timeline = "    "
+    for i, b in enumerate(all_battles):
+        if b.winner == 'a':
+            timeline += f"{C.GREEN}W{C.RESET}"
+        else:
+            timeline += f"{C.RED}L{C.RESET}"
+        if i < len(all_battles) - 1:
+            timeline += "→"
+    print(timeline)
     print(f"    총 턴 수: {total_turns}  |  역전: {total_reversals}회")
+
+    # 가장 극적인 전투
+    if all_battles:
+        most_dramatic = max(all_battles, key=lambda b: b.lead_changes)
+        drama_round = all_battles.index(most_dramatic) + 1
+        if most_dramatic.lead_changes > 0:
+            print(f"    최고 명장면: R{drama_round} ({most_dramatic.lead_changes}회 역전!)")
 
     # 시너지 현황
     counts = Counter(u.name for u in team)
@@ -266,6 +285,14 @@ def interactive_play():
         for e, emhp in zip(enemies, enemy_max_hps):
             print(fmt_unit(e, emhp, "    "))
         print()
+
+        # MVP 표시: 생존 유닛 중 가장 높은 ATK
+        alive_team = [u for u in team if u.is_alive()]
+        if alive_team and won:
+            mvp = max(alive_team, key=lambda u: u.effective_atk())
+            mvp_icon = ARCHETYPE_ICON.get(mvp.name, '?')
+            print(f"  {C.YELLOW}★ MVP: {mvp_icon} {mvp.name} (ATK {mvp.atk}){C.RESET}")
+            print()
 
         if won:
             print(f"  {C.GREEN}{C.BOLD}✦ 승리!{C.RESET}")
