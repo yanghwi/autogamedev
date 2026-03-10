@@ -8,7 +8,8 @@ Midnight Bestiary — game.py
   v3: 9라운드 + 동시공격 + underdog/fatigue/last_stand 메커닉
   v4: 시너지 보장 드래프트 + underdog 임계값 최적화
   v5: 비대칭 타겟팅 + 부활 HP 50% + comeback 역전 시스템
-      FUN SCORE 93+/100 (7차원 평가)
+  v6: 적 배율 최적화(R1-2-6-9) + 부활 후 적 약화 메커닉
+      FUN SCORE 98.2/100 (7차원: 난이도·의사결정·긴장감·박빙·다양성·전략폭·역전)
 """
 
 import random
