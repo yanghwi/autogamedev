@@ -58,11 +58,11 @@ def apply_synergy(team: list[Unit]):
     for u in team:
         n = counts[u.name]
         if n >= 3:
+            u.hp = round(u.hp * 1.30)
+            u.atk = round(u.atk * 1.30)
+        elif n >= 2:
             u.hp = round(u.hp * 1.15)
             u.atk = round(u.atk * 1.15)
-        elif n >= 2:
-            u.hp = round(u.hp * 1.08)
-            u.atk = round(u.atk * 1.08)
         u.max_hp = u.hp
 
 
