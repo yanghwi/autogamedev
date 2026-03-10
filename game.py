@@ -49,6 +49,7 @@ class BattleLog:
     lead_changes: int  # 우세가 뒤바뀐 횟수
     a_units: list = None  # 전투 후 a팀 유닛 상태
     b_units: list = None  # 전투 후 b팀 유닛 상태
+    highlights: list = None  # 전투 주요 이벤트 문자열 리스트
 
 
 def apply_synergy(team: list[Unit]):
@@ -80,6 +81,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
 
     lead_changes = 0
     prev_leader = None
+    highlights = []
 
     for turn in range(200):
         alive_a = [u for u in a if u.is_alive()]
@@ -93,6 +95,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         leader = 'a' if a_ratio >= b_ratio else 'b'
         if prev_leader and leader != prev_leader:
             lead_changes += 1
+            side = "아군" if leader == 'a' else "적군"
+            highlights.append(f"턴{turn}: {side} 역전!")
         prev_leader = leader
 
         # wyrm 성장: 매 4턴마다 ATK +1 (긴 전투에서 역전)
@@ -113,6 +117,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                 # ghost 반격: 회피 성공 시 공격자에게 반격
                 counter = max(1, round(def_unit.effective_atk() * 0.5))
                 atk_unit.hp -= counter
+                highlights.append(f"턴{turn}: ghost 회피! → {counter}dmg 반격")
             # blob 피해 감소
             reduction = def_unit.damage_reduction()
             if reduction > 0:
@@ -152,6 +157,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         lead_changes=lead_changes,
         a_units=a,
         b_units=b,
+        highlights=highlights[-5:] if highlights else [],  # 최근 5개만
     )
 
 

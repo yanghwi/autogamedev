@@ -135,6 +135,9 @@ def interactive_play():
         print()
         print("  ── 전투 결과 ──")
         print(f"  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
+        if log.highlights:
+            for h in log.highlights:
+                print(f"    ⚡ {h}")
         print()
         print("  내 팀:")
         for u, mhp in zip(team, team_max_hps):
