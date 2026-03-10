@@ -102,31 +102,71 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
     print(f"\n  {C.DIM}팁: 같은 종족을 모으면 시너지 보너스! (2+→스탯 UP){C.RESET}")
 
 
+def _show_bestiary():
+    """종족 도감 표시."""
+    print(f"\n  {C.BOLD}── 종족 도감 ──{C.RESET}")
+    for name, desc in PASSIVE_DESC.items():
+        icon = ARCHETYPE_ICON.get(name, '?')
+        color = ARCHETYPE_COLOR.get(name, '')
+        print(f"    {icon} {color}{name:8s}{C.RESET} {desc}")
+    print(f"\n  {SYNERGY_NOTE}")
+    print()
+
+
 def interactive_play():
     clear()
     print(f"{C.MAGENTA}{C.BOLD}{'=' * 50}")
     print("  ☽ MIDNIGHT BESTIARY ☾")
     print(f"{'=' * 50}{C.RESET}")
     print()
-    print("  8라운드를 생존하라. (목숨 2개)")
-    print("  매 라운드, 4마리 중 1마리를 드래프트한다.")
+    print("  8라운드를 생존하라.")
+    print("  매 라운드, 후보 중 1마리를 드래프트한다.")
     print()
-    print(SYNERGY_NOTE)
+
+    # 난이도 선택
+    print(f"  {C.BOLD}난이도 선택:{C.RESET}")
+    print(f"    [1] {C.GREEN}쉬움{C.RESET}  — 목숨 3개, 적 약화")
+    print(f"    [2] {C.YELLOW}보통{C.RESET}  — 목숨 2개 (기본)")
+    print(f"    [3] {C.RED}어려움{C.RESET} — 목숨 1개, 적 강화")
     print()
+
+    while True:
+        try:
+            diff = int(input("  선택 (1-3): "))
+            if 1 <= diff <= 3:
+                break
+        except (ValueError, EOFError):
+            pass
+        print("  1~3 중 하나를 입력하세요.")
+
+    if diff == 1:  # 쉬움
+        lives = 3
+        power_mult = 0.85
+        diff_name = "쉬움"
+    elif diff == 3:  # 어려움
+        lives = 1
+        power_mult = 1.15
+        diff_name = "어려움"
+    else:  # 보통
+        lives = 2
+        power_mult = 1.0
+        diff_name = "보통"
+    max_lives = lives
+
+    _show_bestiary()
     input("  [Enter] 시작...")
 
     team: list[Unit] = []
     team_max_hps: list[int] = []
     n_rounds = 8
-    lives = 2
     enemies_per_round = [1, 2, 2, 3, 3, 4, 4, 5]
-    enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2, 1.3]
+    enemy_power = [round(p * power_mult, 2) for p in [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2, 1.3]]
     prev_won = False  # 직전 라운드 승리 여부 (보너스 선택지용)
     all_battles = []  # 전투 기록 누적
 
     for round_num in range(1, n_rounds + 1):
         clear()
-        lives_str = "♥" * lives + "♡" * (2 - lives)
+        lives_str = "♥" * lives + "♡" * (max_lives - lives)
         print(f"  ══ ROUND {round_num}/{n_rounds}  {lives_str} ══")
         print()
 
