@@ -117,6 +117,22 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
         syn_str = ", ".join(f"{ARCHETYPE_ICON.get(n,'?')}{n}x{c}" for n, c in synergies)
         print(f"    시너지: {syn_str}")
 
+    # 플레이 등급
+    total_reversals = sum(b.lead_changes for b in all_battles)
+    wins = sum(1 for b in all_battles if b.winner == 'a')
+    score = cleared * 10 + wins * 5 + total_reversals * 2 + lives * 15
+    if score >= 100:
+        grade, grade_color = "S", C.YELLOW
+    elif score >= 80:
+        grade, grade_color = "A", C.GREEN
+    elif score >= 60:
+        grade, grade_color = "B", C.CYAN
+    elif score >= 40:
+        grade, grade_color = "C", C.WHITE
+    else:
+        grade, grade_color = "D", C.DIM
+    print(f"\n  {C.BOLD}플레이 등급: {grade_color}{grade}{C.RESET}  ({score}점)")
+
     # 전략 팁
     print(f"\n  {C.DIM}팁: 같은 종족을 모으면 시너지 보너스! (2+→스탯 UP){C.RESET}")
 
