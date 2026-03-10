@@ -114,6 +114,11 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                 if u.name == 'wyrm':
                     u.atk += 1
 
+        # 전투 피로: 턴 12 이후 전 유닛 매 턴 HP -1 (장기전 가속)
+        if turn >= 12:
+            for u in alive_a + alive_b:
+                u.hp = max(1, u.hp - 1)
+
         # imp 사기 진작: 살아있는 imp 수만큼 팀 전원 ATK +1
         imp_bonus_a = sum(1 for u in alive_a if u.name == 'imp' and u.is_alive())
         imp_bonus_b = sum(1 for u in alive_b if u.name == 'imp' and u.is_alive())
