@@ -338,6 +338,14 @@ def interactive_play():
         if won:
             print(f"  {C.GREEN}{C.BOLD}✦ 승리!{C.RESET}")
         else:
+            # 패배 분석
+            alive_enemies = [e for e in enemies if e.hp > 0]
+            if alive_enemies:
+                strongest = max(alive_enemies, key=lambda e: e.atk)
+                eicon = ARCHETYPE_ICON.get(strongest.name, '?')
+                print(f"  {C.DIM}패인: {eicon}{strongest.name}(ATK {strongest.atk})이 너무 강했다{C.RESET}")
+            if len(team) < n_enemies:
+                print(f"  {C.DIM}수적 열세 ({len(team)} vs {n_enemies}) — 더 많은 유닛이 필요{C.RESET}")
             lives -= 1
             if lives > 0:
                 print(f"  {C.YELLOW}✘ 패배... 하지만 아직 목숨 {lives}개 남음!{C.RESET}")
