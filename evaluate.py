@@ -67,6 +67,11 @@ def run_evaluation(n_games: int = 2000) -> dict:
         survival_by_round = []
         progression = 0.0
 
+    # 6. 전략 다양성: 모든 전략이 랜덤 이상 + 전략 간 분포
+    strategy_wrs = [greedy_wr, tank_wr, synergy_wr, hybrid_wr]
+    above_random = sum(1 for s in strategy_wrs if s > win_rate) / len(strategy_wrs)
+    strategy_spread = statistics.stdev(strategy_wrs) if len(strategy_wrs) > 1 else 0
+
     metrics = {
         'n_games': n_games,
         'win_rate_random': round(win_rate, 4),
@@ -79,6 +84,8 @@ def run_evaluation(n_games: int = 2000) -> dict:
         'tension_ratio': round(tension, 4),
         'avg_lead_changes': round(avg_lead_changes, 4),
         'progression_gradient': round(progression, 4),
+        'strategies_above_random': round(above_random, 2),
+        'strategy_spread': round(strategy_spread, 4),
         'survival_curve': [round(s, 3) for s in survival_by_round],
     }
     return metrics
@@ -115,20 +122,22 @@ def print_report(metrics: dict):
     else:
         print("\n  현재 상태 양호.")
 
-    # 복합 재미 점수 (0~100)
+    # 복합 재미 점수 (0~100, 5개 차원 각 20점)
     m = metrics
     wr = m['win_rate_random']
-    # 승률: 25~45%가 이상적 (로그라이크 + 목숨 시스템 고려)
-    wr_score = max(0, 1 - ((wr - 0.35) / 0.25) ** 2) * 25
-    # 의사결정: 높을수록 좋음 (최대 0.5 → 25점)
-    di_score = min(m['decision_impact'] / 0.5, 1.0) * 25
-    # 긴장감: 높을수록 좋음 (최대 0.8 → 25점)
-    tn_score = min(m['tension_ratio'] / 0.8, 1.0) * 25
-    # 다양성: 높을수록 좋음 (최대 3.0 → 25점)
-    dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 25
-    fun_score = round(wr_score + di_score + tn_score + dv_score, 1)
+    # 승률: 25~45%가 이상적
+    wr_score = max(0, 1 - ((wr - 0.35) / 0.25) ** 2) * 20
+    # 의사결정: 높을수록 좋음 (최대 0.5 → 20점)
+    di_score = min(m['decision_impact'] / 0.5, 1.0) * 20
+    # 긴장감: 높을수록 좋음 (최대 0.8 → 20점)
+    tn_score = min(m['tension_ratio'] / 0.8, 1.0) * 20
+    # 다양성: 높을수록 좋음 (최대 3.0 → 20점)
+    dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 20
+    # 전략 다양성: 모든 전략이 랜덤 이상이면 만점 (20점)
+    st_score = m['strategies_above_random'] * 20
+    fun_score = round(wr_score + di_score + tn_score + dv_score + st_score, 1)
     print(f"\n  ★ FUN SCORE: {fun_score}/100")
-    print(f"    난이도 {wr_score:.1f}/25  의사결정 {di_score:.1f}/25  긴장감 {tn_score:.1f}/25  다양성 {dv_score:.1f}/25")
+    print(f"    난이도 {wr_score:.1f}/20  의사결정 {di_score:.1f}/20  긴장감 {tn_score:.1f}/20  다양성 {dv_score:.1f}/20  전략폭 {st_score:.1f}/20")
 
 
 if __name__ == '__main__':
