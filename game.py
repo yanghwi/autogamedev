@@ -289,8 +289,16 @@ def play(strategy=None) -> GameResult:
         if just_revived:
             power *= 0.85  # 부활 직후: 적 15% 약화 (회복 기회)
             just_revived = False
-        enemies = [make_random_unit(tier=round_num, stat_mult=power)
-                   for _ in range(n_enemies)]
+        # R7+: 30% 확률로 적 테마 팀 (같은 아키타입 2마리 → 시너지 발동)
+        if round_num >= 7 and n_enemies >= 3 and random.random() < 0.3:
+            theme = random.choice([a[0] for a in ARCHETYPES])
+            enemies = [make_random_unit(tier=round_num, stat_mult=power, archetype=theme)
+                       for _ in range(2)]
+            enemies += [make_random_unit(tier=round_num, stat_mult=power)
+                        for _ in range(n_enemies - 2)]
+        else:
+            enemies = [make_random_unit(tier=round_num, stat_mult=power)
+                       for _ in range(n_enemies)]
 
         # 전투
         log = battle(team, enemies)
