@@ -194,8 +194,8 @@ def interactive_play():
     team: list[Unit] = []
     team_max_hps: list[int] = []
     n_rounds = 9
-    enemies_per_round = [1, 2, 2, 3, 3, 4, 4, 5, 3]
-    enemy_power = [round(p * power_mult, 2) for p in [0.7, 0.8, 0.95, 0.95, 1.0, 1.05, 1.15, 1.2, 1.35]]
+    enemies_per_round = [2, 2, 2, 3, 3, 4, 4, 5, 3]
+    enemy_power = [round(p * power_mult, 2) for p in [0.55, 0.8, 0.95, 0.95, 1.0, 1.05, 1.15, 1.2, 1.35]]
     prev_won = False  # 직전 라운드 승리 여부 (보너스 선택지용)
     all_battles = []  # 전투 기록 누적
 
