@@ -455,11 +455,18 @@ def interactive_play():
                 syn_parts.append(f"{icon}{n}x{c}(+{pct}%)")
             print(f"  {C.YELLOW}⚡ 시너지 발동: {', '.join(syn_parts)}{C.RESET}")
 
-        # 배치 변경 옵션: R3+, 3마리 이상일 때
+        # 전투 전 전술 선택
+        stance = 'balanced'
+        options = []
         if round_num >= 3 and len(team) >= 3:
-            print(f"\n  {C.DIM}[F] 전위 변경 — 앞줄 유닛이 적의 집중 공격을 받습니다{C.RESET}")
-            raw_battle = input(f"\n  [Enter] 전투 시작 / [F] 전위 변경: ").strip().lower()
-            if raw_battle == 'f':
+            options.append(('F', '전위 변경'))
+        if round_num >= 2:
+            options.append(('T', '전술 자세'))
+        if options:
+            opt_str = " / ".join(f"[{k}] {v}" for k, v in options)
+            print(f"\n  {C.DIM}{opt_str}{C.RESET}")
+            raw_battle = input(f"\n  [Enter] 전투 / {'/'.join(k for k,_ in options)}: ").strip().lower()
+            if raw_battle == 'f' and round_num >= 3 and len(team) >= 3:
                 print(f"\n  {C.BOLD}전위로 세울 유닛 선택:{C.RESET}")
                 best_tank_idx = max(range(len(team)), key=lambda i: team[i].hp)
                 for i, u in enumerate(team):
@@ -479,13 +486,55 @@ def interactive_play():
                     team_max_hps[0], team_max_hps[front] = team_max_hps[front], team_max_hps[0]
                     ficon = ARCHETYPE_ICON.get(team[0].name, '?')
                     print(f"  → {ficon} {team[0].name}을(를) 전위로!")
+            elif raw_battle == 't' and round_num >= 2:
+                print(f"\n  {C.BOLD}전투 자세 선택:{C.RESET}")
+                print(f"    [1] {C.RED}⚔ 공격{C.RESET} — ATK +15%, HP -10% (화력 밀어붙이기)")
+                print(f"    [2] {C.WHITE}⚖ 균형{C.RESET} — 변화 없음 (기본)")
+                print(f"    [3] {C.CYAN}🛡 방어{C.RESET} — ATK -10%, HP +15% (버티기)")
+                while True:
+                    try:
+                        sc = int(input("  자세 (1-3): "))
+                        if sc == 1:
+                            stance = 'aggressive'
+                            break
+                        elif sc == 2:
+                            stance = 'balanced'
+                            break
+                        elif sc == 3:
+                            stance = 'defensive'
+                            break
+                    except (ValueError, EOFError):
+                        pass
+                stance_names = {'aggressive': f'{C.RED}⚔ 공격{C.RESET}',
+                                'balanced': f'{C.WHITE}⚖ 균형{C.RESET}',
+                                'defensive': f'{C.CYAN}🛡 방어{C.RESET}'}
+                print(f"  → 자세: {stance_names[stance]}")
         else:
             input("\n  [Enter] 전투 시작...")
+
+        # 자세 효과 적용 (전투 전 임시 스탯 수정)
+        stance_mults = {'aggressive': (1.15, 0.90), 'balanced': (1.0, 1.0), 'defensive': (0.90, 1.15)}
+        atk_m, hp_m = stance_mults[stance]
+        if stance != 'balanced':
+            for u in team:
+                u._orig_atk = u.atk
+                u._orig_hp = u.hp
+                u.atk = max(1, round(u.atk * atk_m))
+                u.hp = max(1, round(u.hp * hp_m))
 
         # game.py의 battle() 사용 — 로직 항상 동기화
         log = battle(team, enemies)
         all_battles.append(log)
         won = log.winner == 'a'
+
+        # 자세 효과 복원
+        if stance != 'balanced':
+            for u in team:
+                if hasattr(u, '_orig_atk'):
+                    u.atk = u._orig_atk
+                    del u._orig_atk
+                if hasattr(u, '_orig_hp'):
+                    del u._orig_hp
 
         # 전투 후 유닛 상태를 팀에 반영
         for i, post in enumerate(log.a_units):
