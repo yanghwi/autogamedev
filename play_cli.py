@@ -42,7 +42,7 @@ PASSIVE_DESC = {
     'phoenix': '부활: 최초 사망 시 HP 50%로 부활',
 }
 
-SYNERGY_NOTE = "  ※ 같은 종족 2마리→스탯+15%, 3마리→스탯+30%"
+SYNERGY_NOTE = "  ※ 같은 종족 2마리→스탯+20%, 3마리→스탯+35%"
 
 
 def clear():
