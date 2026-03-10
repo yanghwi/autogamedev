@@ -118,8 +118,8 @@ def print_report(metrics: dict):
     # 복합 재미 점수 (0~100)
     m = metrics
     wr = m['win_rate_random']
-    # 승률: 30~50%가 이상적 (가우시안 피크)
-    wr_score = max(0, 1 - ((wr - 0.40) / 0.20) ** 2) * 25
+    # 승률: 25~45%가 이상적 (로그라이크 + 목숨 시스템 고려)
+    wr_score = max(0, 1 - ((wr - 0.35) / 0.25) ** 2) * 25
     # 의사결정: 높을수록 좋음 (최대 0.5 → 25점)
     di_score = min(m['decision_impact'] / 0.5, 1.0) * 25
     # 긴장감: 높을수록 좋음 (최대 0.8 → 25점)
