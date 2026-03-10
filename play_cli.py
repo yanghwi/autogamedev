@@ -545,12 +545,22 @@ def interactive_play():
             print(fmt_unit(e, emhp, "    "))
         print()
 
-        # MVP 표시: 생존 유닛 중 가장 높은 ATK
+        # 전투 후 유닛 활약 분석
         alive_team = [u for u in team if u.is_alive()]
         if alive_team and won:
             mvp = max(alive_team, key=lambda u: u.effective_atk())
             mvp_icon = ARCHETYPE_ICON.get(mvp.name, '?')
             print(f"  {C.YELLOW}★ MVP: {mvp_icon} {mvp.name} (ATK {mvp.atk}){C.RESET}")
+            # 추가 활약상
+            for i, u in enumerate(team):
+                if u.is_alive() and u != mvp:
+                    dmg_taken = team_max_hps[i] - u.hp
+                    if dmg_taken <= team_max_hps[i] * 0.1 and team_max_hps[i] > 0:
+                        uicon = ARCHETYPE_ICON.get(u.name, '?')
+                        print(f"  {C.CYAN}  ◆ {uicon} {u.name}: 거의 무상! (HP {u.hp}/{team_max_hps[i]}){C.RESET}")
+                    elif dmg_taken >= team_max_hps[i] * 0.8 and u.hp > 0:
+                        uicon = ARCHETYPE_ICON.get(u.name, '?')
+                        print(f"  {C.RED}  ◆ {uicon} {u.name}: 강철 의지! (HP {u.hp}/{team_max_hps[i]}){C.RESET}")
             print()
 
         if won:
