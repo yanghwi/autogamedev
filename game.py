@@ -113,8 +113,10 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             base_atk = atk_unit.effective_atk() + imp_bonus
             dmg = max(1, round(base_atk * random.uniform(0.3, 1.7)))
             # 크리티컬 히트: 10% 확률로 2배 데미지
-            if random.random() < 0.10:
+            is_crit = random.random() < 0.10
+            if is_crit:
                 dmg *= 2
+                highlights.append(f"턴{turn}: {atk_unit.name} 크리티컬! {dmg}dmg")
             if def_unit.name == 'ghost' and random.random() < 0.25:
                 dmg = 0  # ghost 회피
                 # ghost 반격: 회피 성공 시 공격자에게 반격
@@ -130,6 +132,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             if atk_unit.name == 'bot' and random.random() < 0.5:
                 bonus = max(1, dmg // 3)
                 def_unit.hp -= bonus
+            if not def_unit.is_alive():
+                highlights.append(f"턴{turn}: {atk_unit.name}→{def_unit.name} 처치!")
 
         # a 공격
         attacker = alive_a[turn % len(alive_a)]
