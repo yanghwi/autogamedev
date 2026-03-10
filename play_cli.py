@@ -88,10 +88,14 @@ def interactive_play():
         bonus_tag = " (+1 보너스!)" if n_choices == 5 else ""
         print(f"  드래프트{bonus_tag} — 하나를 선택하세요:")
         print()
+        from collections import Counter
+        team_counts = Counter(u.name for u in team)
         for i, c in enumerate(choices):
             icon = ARCHETYPE_ICON.get(c.name, '?')
             passive = PASSIVE_DESC.get(c.name, '')
-            print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}  ({passive})")
+            existing = team_counts.get(c.name, 0)
+            syn_tag = f" [팀 {existing}마리→시너지!]" if existing >= 1 else ""
+            print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}  ({passive}){syn_tag}")
         print()
 
         while True:
