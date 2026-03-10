@@ -275,7 +275,7 @@ def play(strategy=None) -> GameResult:
         # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
         enemies_per_round = [2, 2, 2, 3, 3, 4, 4, 5, 3]  # R1: 2마리로 시작, R9: 보스전
         n_enemies = enemies_per_round[round_num - 1]
-        enemy_power = [0.60, 0.8, 0.95, 0.95, 1.0, 1.10, 1.15, 1.2, 1.35]
+        enemy_power = [0.60, 0.85, 0.95, 0.95, 1.0, 1.10, 1.15, 1.2, 1.35]
         power = enemy_power[round_num - 1]
         if just_revived:
             power *= 0.90  # 부활 직후: 적 10% 약화 (회복 기회)
