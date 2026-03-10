@@ -112,6 +112,9 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         def do_attack(atk_unit, def_unit, imp_bonus):
             base_atk = atk_unit.effective_atk() + imp_bonus
             dmg = max(1, round(base_atk * random.uniform(0.3, 1.7)))
+            # 크리티컬 히트: 10% 확률로 2배 데미지
+            if random.random() < 0.10:
+                dmg *= 2
             if def_unit.name == 'ghost' and random.random() < 0.25:
                 dmg = 0  # ghost 회피
                 # ghost 반격: 회피 성공 시 공격자에게 반격
