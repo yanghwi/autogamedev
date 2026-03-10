@@ -202,7 +202,11 @@ def interactive_play():
     for round_num in range(1, n_rounds + 1):
         clear()
         lives_str = "♥" * lives + "♡" * (max_lives - lives)
-        print(f"  ══ ROUND {round_num}/{n_rounds}  {lives_str} ══")
+        if round_num == n_rounds:
+            print(f"  {C.RED}{C.BOLD}══ FINAL ROUND  {lives_str} ══{C.RESET}")
+            print(f"  {C.DIM}최후의 전투가 시작된다...{C.RESET}")
+        else:
+            print(f"  ══ ROUND {round_num}/{n_rounds}  {lives_str} ══")
         print()
 
         if team:
