@@ -35,18 +35,20 @@ def interactive_play():
     print("  ☽ MIDNIGHT BESTIARY ☾")
     print("=" * 50)
     print()
-    print("  5라운드를 생존하라.")
+    print("  7라운드를 생존하라.")
     print("  매 라운드, 3마리 중 1마리를 드래프트한다.")
     print()
     input("  [Enter] 시작...")
 
     team: list[Unit] = []
     team_max_hps: list[int] = []
-    enemy_power = [0.9, 0.95, 1.0, 1.1, 1.2]
+    n_rounds = 7
+    enemies_per_round = [1, 2, 2, 3, 3, 4, 4]
+    enemy_power = [0.9, 0.8, 0.95, 0.95, 1.0, 1.05, 1.1]
 
-    for round_num in range(1, 6):
+    for round_num in range(1, n_rounds + 1):
         clear()
-        print(f"  ══ ROUND {round_num}/5 ══")
+        print(f"  ══ ROUND {round_num}/{n_rounds} ══")
         print()
 
         if team:
@@ -79,8 +81,8 @@ def interactive_play():
         icon = ARCHETYPE_ICON.get(chosen.name, '?')
         print(f"\n  → {icon} {chosen.name} 영입!")
 
-        # 적 생성
-        n_enemies = max(1, round(len(team) * 0.55))
+        # 적 생성 — game.py와 동일한 공식
+        n_enemies = enemies_per_round[round_num - 1]
         enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
                    for _ in range(n_enemies)]
         enemy_max_hps = [e.hp for e in enemies]
@@ -121,7 +123,7 @@ def interactive_play():
         else:
             print("  ✘ 패배...")
 
-        if won and round_num < 5:
+        if won and round_num < n_rounds:
             for u in team:
                 if u.is_alive():
                     max_hp = 25 + round_num * 5 + 5
@@ -133,7 +135,7 @@ def interactive_play():
             input("\n  [Enter] 종료...")
             return
 
-        if round_num < 5:
+        if round_num < n_rounds:
             input("\n  [Enter] 다음 라운드...")
 
     print()
