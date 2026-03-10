@@ -270,22 +270,63 @@ def interactive_play():
             best_power = max(ch.atk * 2 + ch.hp for ch in choices)
             stat_tag = f" {C.CYAN}◆최강{C.RESET}" if power == best_power and not syn_tag else ""
             print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}  ({passive}){syn_tag}{stat_tag}")
+        # 교체 옵션: R4+, 팀 3마리 이상일 때 기존 유닛과 교체 가능
+        can_swap = round_num >= 4 and len(team) >= 3
+        if can_swap:
+            print(f"    {C.DIM}[S] 교체 — 기존 유닛 1마리를 방출하고 새 유닛 영입{C.RESET}")
         print()
 
         while True:
             try:
-                pick = int(input(f"  선택 (1-{n_choices}): ")) - 1
+                raw = input(f"  선택 (1-{n_choices}{', S=교체' if can_swap else ''}): ").strip()
+                if can_swap and raw.lower() == 's':
+                    # 교체 모드: 먼저 뽑을 유닛 선택
+                    print(f"\n  {C.BOLD}영입할 유닛 선택:{C.RESET}")
+                    for i, c in enumerate(choices):
+                        icon = ARCHETYPE_ICON.get(c.name, '?')
+                        print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}")
+                    while True:
+                        try:
+                            recruit = int(input(f"  영입 (1-{n_choices}): ")) - 1
+                            if 0 <= recruit < n_choices:
+                                break
+                        except (ValueError, EOFError):
+                            pass
+                    # 방출할 유닛 선택
+                    print(f"\n  {C.BOLD}방출할 유닛 선택:{C.RESET}")
+                    for i, u in enumerate(team):
+                        uicon = ARCHETYPE_ICON.get(u.name, '?')
+                        status = f"HP {u.hp}" if u.is_alive() else "💀"
+                        print(f"    [{i + 1}] {uicon} {u.name:6s}  {status}  ATK {u.atk}")
+                    while True:
+                        try:
+                            release = int(input(f"  방출 (1-{len(team)}): ")) - 1
+                            if 0 <= release < len(team):
+                                break
+                        except (ValueError, EOFError):
+                            pass
+                    released = team[release]
+                    ricon = ARCHETYPE_ICON.get(released.name, '?')
+                    team.pop(release)
+                    team_max_hps.pop(release)
+                    chosen = choices[recruit]
+                    team.append(chosen)
+                    team_max_hps.append(chosen.hp)
+                    nicon = ARCHETYPE_ICON.get(chosen.name, '?')
+                    print(f"\n  {ricon} {released.name} 방출 → {nicon} {chosen.name} 영입!")
+                    break
+                pick = int(raw) - 1
                 if 0 <= pick < n_choices:
+                    chosen = choices[pick]
+                    team.append(chosen)
+                    team_max_hps.append(chosen.hp)
                     break
             except (ValueError, EOFError):
                 pass
             print(f"  1~{n_choices} 중 하나를 입력하세요.")
-
-        chosen = choices[pick]
-        team.append(chosen)
-        team_max_hps.append(chosen.hp)
-        icon = ARCHETYPE_ICON.get(chosen.name, '?')
-        print(f"\n  → {icon} {chosen.name} 영입!")
+        if not (can_swap and raw.lower() == 's'):
+            icon = ARCHETYPE_ICON.get(chosen.name, '?')
+            print(f"\n  → {icon} {chosen.name} 영입!")
 
         # 적 생성 — game.py와 동일한 공식
         n_enemies = enemies_per_round[round_num - 1]
