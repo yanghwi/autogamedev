@@ -138,7 +138,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                 dmg = max(1, round(dmg * (1 - reduction)))
             def_unit.hp -= dmg
             # bot 연사: 50% 확률로 약한 추가 타격
-            if atk_unit.name == 'bot' and random.random() < 0.5:
+            if atk_unit.name == 'bot' and random.random() < 0.6:
                 bonus = max(1, dmg // 3)
                 def_unit.hp -= bonus
             if not def_unit.is_alive():
