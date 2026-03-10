@@ -43,9 +43,9 @@ class Unit:
         return atk
 
     def damage_reduction(self) -> float:
-        """피해 감소 비율. blob: 30% 감소."""
+        """피해 감소 비율. blob: 25% 감소."""
         if self.name == 'blob':
-            return 0.3
+            return 0.25
         return 0.0
 
 
