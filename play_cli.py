@@ -854,6 +854,19 @@ def interactive_play():
             for i, post in enumerate(log.a_units):
                 team[i].hp = post.hp
             import time
+            # HP 타임라인 미니 그래프
+            if log.hp_timeline and len(log.hp_timeline) > 2:
+                print(f"\n  {C.BOLD}── 전투 실황 ──{C.RESET}")
+                step = max(1, len(log.hp_timeline) // 4)
+                samples = log.hp_timeline[::step][:4]
+                for si, (ar, br) in enumerate(samples):
+                    tn = si * step + 1
+                    a_bar = "█" * round(ar * 10) + "░" * (10 - round(ar * 10))
+                    b_bar = "█" * round(br * 10) + "░" * (10 - round(br * 10))
+                    a_c = C.GREEN if ar >= br else C.RED
+                    b_c = C.RED if ar >= br else C.GREEN
+                    print(f"    T{tn:2d}  {a_c}{a_bar}{C.RESET} {'◀' if ar > br else '▶' if br > ar else '='} {b_c}{b_bar}{C.RESET}")
+                    time.sleep(0.1)
             if log.highlights:
                 for h in log.highlights[-5:]:
                     print(f"    ⚡ {h}")
