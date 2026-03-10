@@ -245,6 +245,7 @@ def play(strategy=None) -> GameResult:
     choice_outcomes: list[bool] = []
     n_rounds = 9  # 9라운드: 보스전 추가
     lives = 2  # 목숨 2개: 첫 패배는 생존, 두 번째가 게임오버
+    just_revived = False  # 부활 직후 플래그
 
     for round_num in range(1, n_rounds + 1):
         # 드래프트: 기본 4개, 직전 라운드 승리 시 +1 보너스 선택지
@@ -275,7 +276,11 @@ def play(strategy=None) -> GameResult:
         enemies_per_round = [2, 2, 2, 3, 3, 4, 4, 5, 3]  # R1: 2마리로 시작, R9: 보스전
         n_enemies = enemies_per_round[round_num - 1]
         enemy_power = [0.55, 0.8, 0.95, 0.95, 1.0, 1.10, 1.15, 1.2, 1.35]
-        enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
+        power = enemy_power[round_num - 1]
+        if just_revived:
+            power *= 0.90  # 부활 직후: 적 10% 약화 (회복 기회)
+            just_revived = False
+        enemies = [make_random_unit(tier=round_num, stat_mult=power)
                    for _ in range(n_enemies)]
 
         # 전투
@@ -303,6 +308,7 @@ def play(strategy=None) -> GameResult:
                     choice_outcomes=choice_outcomes,
                 )
             # 부활: 전 유닛 HP 50%로 회복하고 계속
+            just_revived = True
             for u in team:
                 max_hp = 25 + round_num * 5 + 5
                 u.hp = max(1, round(max_hp * 0.5))
