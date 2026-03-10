@@ -8,7 +8,7 @@ Midnight Bestiary — evaluate.py
 
 import math
 import statistics
-from game import play, greedy_strategy, tank_strategy, synergy_strategy
+from game import play, greedy_strategy, tank_strategy, synergy_strategy, hybrid_strategy
 
 
 def run_evaluation(n_games: int = 2000) -> dict:
@@ -17,15 +17,17 @@ def run_evaluation(n_games: int = 2000) -> dict:
     greedy_results = [play(strategy=greedy_strategy) for _ in range(n_games)]
     tank_results = [play(strategy=tank_strategy) for _ in range(n_games)]
     synergy_results = [play(strategy=synergy_strategy) for _ in range(n_games)]
+    hybrid_results = [play(strategy=hybrid_strategy) for _ in range(n_games)]
 
     # 1. 승률
     win_rate = sum(1 for r in random_results if r.won) / n_games
     greedy_wr = sum(1 for r in greedy_results if r.won) / n_games
     tank_wr = sum(1 for r in tank_results if r.won) / n_games
     synergy_wr = sum(1 for r in synergy_results if r.won) / n_games
+    hybrid_wr = sum(1 for r in hybrid_results if r.won) / n_games
 
     # 2. 의사결정 의미성: 최선 전략 vs 랜덤의 차이
-    best_strategy_wr = max(greedy_wr, tank_wr, synergy_wr)
+    best_strategy_wr = max(greedy_wr, tank_wr, synergy_wr, hybrid_wr)
     decision_impact = best_strategy_wr - win_rate
 
     # 3. 다양성: 클리어한 라운드 수의 분포 엔트로피
@@ -71,6 +73,7 @@ def run_evaluation(n_games: int = 2000) -> dict:
         'win_rate_greedy': round(greedy_wr, 4),
         'win_rate_tank': round(tank_wr, 4),
         'win_rate_synergy': round(synergy_wr, 4),
+        'win_rate_hybrid': round(hybrid_wr, 4),
         'decision_impact': round(decision_impact, 4),
         'diversity_entropy': round(diversity, 4),
         'tension_ratio': round(tension, 4),

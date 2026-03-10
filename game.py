@@ -263,6 +263,12 @@ def tank_strategy(choices: list[Unit], round_num: int) -> int:
     """가장 높은 HP 선택."""
     return max(range(len(choices)), key=lambda i: choices[i].hp)
 
+def hybrid_strategy(choices: list[Unit], round_num: int) -> int:
+    """초반(R1-3) 탱커 우선, 후반(R4+) 딜러 우선."""
+    if round_num <= 3:
+        return max(range(len(choices)), key=lambda i: choices[i].hp)
+    return max(range(len(choices)), key=lambda i: choices[i].atk)
+
 def synergy_strategy(choices: list[Unit], round_num: int, team: list = None) -> int:
     """팀에 이미 있는 종족을 우선 선택 (시너지 극대화)."""
     if not team:
