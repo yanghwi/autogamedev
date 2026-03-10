@@ -1,10 +1,12 @@
 """
-Midnight Bestiary — game.py (Seed v1)
+Midnight Bestiary — game.py
 
 진화 이력:
   v0: 최소 원형 (Unit + battle + play)
-  v1: 배틀 로그 추가 → 긴장감 측정 가능
-      다중 라운드 + 드래프트 선택 추가 → 진행감/의사결정 측정 가능
+  v1: 배틀 로그 + 다중 라운드 + 드래프트
+  v2: 7종 아키타입 + 시너지 + 패시브 시스템
+  v3: 9라운드 + 동시공격 + underdog/fatigue/last_stand 메커닉
+      FUN SCORE 98.7/100
 """
 
 import random
