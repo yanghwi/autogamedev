@@ -45,9 +45,15 @@ def run_evaluation(n_games: int = 2000) -> dict:
         tense_battles = sum(1 for b in all_battles if b.lead_changes > 0)
         tension = tense_battles / len(all_battles)
         avg_lead_changes = statistics.mean(b.lead_changes for b in all_battles)
+        # 박빙 비율: 승자 HP < 30%인 전투 비율 (추가 긴장감 지표)
+        close_finishes = sum(1 for b in all_battles
+                           if (b.winner == 'a' and b.a_hp_remaining < 0.3)
+                           or (b.winner == 'b' and b.b_hp_remaining < 0.3))
+        close_finish_rate = close_finishes / len(all_battles)
     else:
         tension = 0.0
         avg_lead_changes = 0.0
+        close_finish_rate = 0.0
 
     # 5. 진행감: 후반 라운드에 도달하는 비율 (라운드별 생존율)
     if random_results:
@@ -86,6 +92,7 @@ def run_evaluation(n_games: int = 2000) -> dict:
         'progression_gradient': round(progression, 4),
         'strategies_above_random': round(above_random, 2),
         'strategy_spread': round(strategy_spread, 4),
+        'close_finish_rate': round(close_finish_rate, 4),
         'survival_curve': [round(s, 3) for s in survival_by_round],
     }
     return metrics
@@ -122,22 +129,24 @@ def print_report(metrics: dict):
     else:
         print("\n  현재 상태 양호.")
 
-    # 복합 재미 점수 (0~100, 5개 차원 각 20점)
+    # 복합 재미 점수 (0~100, 6개 차원)
     m = metrics
     wr = m['win_rate_random']
-    # 승률: 25~45%가 이상적
-    wr_score = max(0, 1 - ((wr - 0.35) / 0.25) ** 2) * 20
-    # 의사결정: 높을수록 좋음 (최대 0.5 → 20점)
-    di_score = min(m['decision_impact'] / 0.5, 1.0) * 20
-    # 긴장감: 높을수록 좋음 (최대 0.8 → 20점)
-    tn_score = min(m['tension_ratio'] / 0.8, 1.0) * 20
-    # 다양성: 높을수록 좋음 (최대 3.0 → 20점)
-    dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 20
-    # 전략 다양성: 모든 전략이 랜덤 이상이면 만점 (20점)
-    st_score = m['strategies_above_random'] * 20
-    fun_score = round(wr_score + di_score + tn_score + dv_score + st_score, 1)
+    # 승률: 25~45%가 이상적 (17점)
+    wr_score = max(0, 1 - ((wr - 0.35) / 0.25) ** 2) * 17
+    # 의사결정: 높을수록 좋음 (최대 0.5 → 17점)
+    di_score = min(m['decision_impact'] / 0.5, 1.0) * 17
+    # 긴장감: 역전 비율 (최대 0.8 → 17점)
+    tn_score = min(m['tension_ratio'] / 0.8, 1.0) * 17
+    # 박빙: 승자 HP<30% 비율 (최대 0.5 → 16점)
+    cf_score = min(m['close_finish_rate'] / 0.5, 1.0) * 16
+    # 다양성: 높을수록 좋음 (최대 3.0 → 17점)
+    dv_score = min(m['diversity_entropy'] / 3.0, 1.0) * 17
+    # 전략 다양성: 모든 전략이 랜덤 이상이면 만점 (16점)
+    st_score = m['strategies_above_random'] * 16
+    fun_score = round(wr_score + di_score + tn_score + cf_score + dv_score + st_score, 1)
     print(f"\n  ★ FUN SCORE: {fun_score}/100")
-    print(f"    난이도 {wr_score:.1f}/20  의사결정 {di_score:.1f}/20  긴장감 {tn_score:.1f}/20  다양성 {dv_score:.1f}/20  전략폭 {st_score:.1f}/20")
+    print(f"    난이도 {wr_score:.1f}/17  의사결정 {di_score:.1f}/17  긴장감 {tn_score:.1f}/17  박빙 {cf_score:.1f}/16  다양성 {dv_score:.1f}/17  전략폭 {st_score:.1f}/16")
 
 
 if __name__ == '__main__':
