@@ -224,6 +224,20 @@ def interactive_play():
     print()
     print("  9라운드를 생존하라.")
     print("  매 라운드, 후보 중 1마리를 드래프트한다.")
+
+    # 이전 기록 표시
+    import json, pathlib
+    _rec_path = pathlib.Path(__file__).parent / '.bestiary_records.json'
+    try:
+        _prev = json.loads(_rec_path.read_text()) if _rec_path.exists() else {}
+    except Exception:
+        _prev = {}
+    if _prev.get('total_games', 0) > 0:
+        tg = _prev['total_games']
+        bs = _prev.get('best_score', 0)
+        br = _prev.get('best_cleared', 0)
+        ach = len(_prev.get('achievements', []))
+        print(f"\n  {C.DIM}통산 {tg}회 | 최고 {bs}점 | R{br} | 도전과제 {ach}/5{C.RESET}")
     print()
 
     # 난이도 선택
