@@ -10,7 +10,7 @@ Midnight Bestiary — game.py
   v5: 비대칭 타겟팅 + 부활 HP 50% + comeback 역전 시스템
   v6: 적 배율 최적화(R1-2-6-9) + 부활 후 적 약화 메커닉
   v7: R4 강적2 구조 + HP타임라인 전투실황 + diversity 공식 현실화
-      FUN SCORE 98.9/100 (7차원: 난이도·의사결정·긴장감·박빙·다양성·전략폭·역전)
+  v7.2: 부활 적 약화 15% + R1 파워 0.70 → FUN SCORE 99.5/100
 """
 
 import random
