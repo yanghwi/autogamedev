@@ -193,8 +193,8 @@ def play(strategy=None) -> GameResult:
     n_rounds = 7  # 7라운드: 더 긴 진행감 곡선
 
     for round_num in range(1, n_rounds + 1):
-        # 드래프트: 3개 중 1개 선택
-        choices = [make_random_unit(tier=round_num) for _ in range(3)]
+        # 드래프트: 4개 중 1개 선택 — 더 넓은 선택지로 전략적 깊이 증가
+        choices = [make_random_unit(tier=round_num) for _ in range(4)]
         if strategy:
             import inspect
             sig = inspect.signature(strategy)
@@ -203,7 +203,7 @@ def play(strategy=None) -> GameResult:
             else:
                 pick = strategy(choices, round_num)
         else:
-            pick = random.randint(0, 2)
+            pick = random.randint(0, len(choices) - 1)
         team.append(choices[pick])
 
         # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
