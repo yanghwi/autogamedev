@@ -242,12 +242,18 @@ def interactive_play():
         # 전투 연출 — 하이라이트를 극적으로 표시
         import time
         print()
+        a_hp_pct = f"{log.a_hp_remaining:.0%}"
+        b_hp_pct = f"{log.b_hp_remaining:.0%}"
         if log.highlights:
-            print("  ── 전투 진행 ──")
+            print(f"  {C.BOLD}── 전투 진행 ──{C.RESET}")
             for h in log.highlights:
                 icon = "💥" if "크리티컬" in h else "👻" if "회피" in h else "🔥" if "부활" in h else "💀" if "처치" in h else "⚔️" if "역전" in h else "⚡"
                 print(f"    {icon} {h}")
                 time.sleep(0.3)
+            # 전투 후 HP 요약
+            a_color = C.GREEN if won else C.RED
+            b_color = C.RED if won else C.GREEN
+            print(f"\n    {a_color}아군 HP {a_hp_pct}{C.RESET}  vs  {b_color}적군 HP {b_hp_pct}{C.RESET}")
             print()
         print("  ── 전투 결과 ──")
         print(f"  턴 수: {log.turns}  |  역전: {log.lead_changes}회")
