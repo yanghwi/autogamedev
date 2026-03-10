@@ -108,8 +108,8 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             highlights.append(f"턴{turn}: {side} 역전!")
         prev_leader = leader
 
-        # wyrm 성장: 매 4턴마다 ATK +1 (긴 전투에서 역전)
-        if turn > 0 and turn % 4 == 0:
+        # wyrm 성장: 매 3턴마다 ATK +1 (긴 전투에서 역전)
+        if turn > 0 and turn % 3 == 0:
             for u in alive_a + alive_b:
                 if u.name == 'wyrm':
                     u.atk += 1
