@@ -237,8 +237,17 @@ def interactive_play():
             icon = ARCHETYPE_ICON.get(c.name, '?')
             passive = PASSIVE_DESC.get(c.name, '')
             existing = team_counts.get(c.name, 0)
-            syn_tag = f" [팀 {existing}마리→시너지!]" if existing >= 1 else ""
-            print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}  ({passive}){syn_tag}")
+            if existing >= 2:
+                syn_tag = f" {C.YELLOW}★★ {existing}마리→강화!{C.RESET}"
+            elif existing >= 1:
+                syn_tag = f" {C.GREEN}★ 시너지!{C.RESET}"
+            else:
+                syn_tag = ""
+            # 스탯 평가 (ATK*2 + HP 기준 상위면 강조)
+            power = c.atk * 2 + c.hp
+            best_power = max(ch.atk * 2 + ch.hp for ch in choices)
+            stat_tag = f" {C.CYAN}◆최강{C.RESET}" if power == best_power and not syn_tag else ""
+            print(f"    [{i + 1}] {icon} {c.name:6s}  HP {c.hp:3d}  ATK {c.atk:2d}  ({passive}){syn_tag}{stat_tag}")
         print()
 
         while True:
