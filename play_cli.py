@@ -4,7 +4,7 @@ Midnight Bestiary — 인간 플레이 모드 (터미널)
 실행: python3 play_cli.py
 """
 
-from game import Unit, make_random_unit, battle
+from game import Unit, make_random_unit, battle, ARCHETYPE_MAP
 import os
 
 
@@ -232,7 +232,7 @@ def interactive_play():
             counts = Counter(u.name for u in team if u.is_alive())
             synergies = [(name, cnt) for name, cnt in counts.items() if cnt >= 2]
             if synergies:
-                syn_str = ", ".join(f"{ARCHETYPE_ICON.get(n,'?')}{n}x{c}({'+'}{15 if c==2 else 30}%)"
+                syn_str = ", ".join(f"{ARCHETYPE_ICON.get(n,'?')}{n}x{c}(+{20 if c==2 else 35 if c==3 else 55}%)"
                                      for n, c in synergies)
                 print(f"    시너지: {syn_str}")
             print()
@@ -240,6 +240,14 @@ def interactive_play():
         # 드래프트 — 승리 보상: 선택지 +1
         n_choices = 5 if (round_num > 1 and prev_won) else 4
         choices = [make_random_unit(tier=round_num) for _ in range(n_choices)]
+        # R3 이후: 선택지 중 1개를 팀 종족으로 보장 (시너지 빌드 지원)
+        if team and round_num >= 3:
+            import random
+            team_names_set = [u.name for u in team]
+            if not any(c.name in team_names_set for c in choices):
+                target_name = random.choice(team_names_set)
+                replacement = make_random_unit(tier=round_num, archetype=target_name)
+                choices[-1] = replacement
         bonus_tag = " (+1 보너스!)" if n_choices == 5 else ""
         print(f"  드래프트{bonus_tag} — 하나를 선택하세요:")
         if round_num == 1:
