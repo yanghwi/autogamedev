@@ -45,8 +45,8 @@ def interactive_play():
     print("  ☽ MIDNIGHT BESTIARY ☾")
     print("=" * 50)
     print()
-    print("  7라운드를 생존하라.")
-    print("  매 라운드, 3마리 중 1마리를 드래프트한다.")
+    print("  7라운드를 생존하라. (목숨 2개)")
+    print("  매 라운드, 4마리 중 1마리를 드래프트한다.")
     print()
     print(SYNERGY_NOTE)
     print()
@@ -55,12 +55,14 @@ def interactive_play():
     team: list[Unit] = []
     team_max_hps: list[int] = []
     n_rounds = 7
+    lives = 2
     enemies_per_round = [1, 2, 2, 3, 3, 4, 4]
     enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2]
 
     for round_num in range(1, n_rounds + 1):
         clear()
-        print(f"  ══ ROUND {round_num}/{n_rounds} ══")
+        lives_str = "♥" * lives + "♡" * (2 - lives)
+        print(f"  ══ ROUND {round_num}/{n_rounds}  {lives_str} ══")
         print()
 
         if team:
@@ -142,7 +144,16 @@ def interactive_play():
         if won:
             print("  ✦ 승리!")
         else:
-            print("  ✘ 패배...")
+            lives -= 1
+            if lives > 0:
+                print(f"  ✘ 패배... 하지만 아직 목숨 {lives}개 남음!")
+                print("  (전원 HP 30%로 부활)")
+                for i, u in enumerate(team):
+                    max_hp = 25 + round_num * 5 + 5
+                    u.hp = max(1, round(max_hp * 0.3))
+                    team_max_hps[i] = max(team_max_hps[i], u.hp)
+            else:
+                print("  ✘ 패배...")
 
         if won and round_num < n_rounds:
             for u in team:
@@ -151,7 +162,7 @@ def interactive_play():
                     u.hp = min(max_hp, u.hp + round(max_hp * 0.15))
             print("  (생존 유닛 HP 15% 회복)")
 
-        if not won:
+        if not won and lives <= 0:
             print(f"\n  라운드 {round_num}에서 전멸. {round_num - 1}라운드 클리어.")
             input("\n  [Enter] 종료...")
             return
