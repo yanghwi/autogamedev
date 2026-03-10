@@ -190,7 +190,7 @@ def play(strategy=None) -> GameResult:
     team: list[Unit] = []
     battles: list[BattleLog] = []
     choice_outcomes: list[bool] = []
-    n_rounds = 7  # 7라운드: 더 긴 진행감 곡선
+    n_rounds = 8  # 8라운드: 확장된 진행감 곡선
     lives = 2  # 목숨 2개: 첫 패배는 생존, 두 번째가 게임오버
 
     for round_num in range(1, n_rounds + 1):
@@ -208,9 +208,9 @@ def play(strategy=None) -> GameResult:
         team.append(choices[pick])
 
         # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
-        enemies_per_round = [1, 2, 2, 3, 3, 4, 4]  # 7라운드 확장
+        enemies_per_round = [1, 2, 2, 3, 3, 4, 4, 5]  # 8라운드: 최종 5마리
         n_enemies = enemies_per_round[round_num - 1]
-        enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2]
+        enemy_power = [0.7, 0.8, 0.95, 0.95, 1.0, 1.1, 1.2, 1.3]
         enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
                    for _ in range(n_enemies)]
 
