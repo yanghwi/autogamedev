@@ -85,15 +85,15 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
 
 # ===== 유닛 풀 (에이전트가 진화시킬 부분) =====
 
-def make_random_unit(tier: int = 1) -> Unit:
-    """티어에 따라 유닛 생성. 티어 체계는 에이전트가 발전시킨다."""
+def make_random_unit(tier: int = 1, stat_mult: float = 1.0) -> Unit:
+    """티어에 따라 유닛 생성. stat_mult로 스탯 스케일링."""
     names = ['beast', 'imp', 'blob', 'bot', 'ghost']
     base_hp = 25 + tier * 5
     base_atk = 3 + tier * 1
     return Unit(
         name=random.choice(names),
-        hp=random.randint(base_hp, base_hp + 10),
-        atk=random.randint(base_atk, base_atk + 2),
+        hp=round(random.randint(base_hp, base_hp + 10) * stat_mult),
+        atk=round(random.randint(base_atk, base_atk + 2) * stat_mult),
     )
 
 
@@ -130,15 +130,24 @@ def play(strategy=None) -> GameResult:
             pick = random.randint(0, 2)
         team.append(choices[pick])
 
-        # 적: 팀 수의 ~65%, 드래프트와 같은 티어
-        n_enemies = max(1, round(len(team) * 0.65))
-        enemies = [make_random_unit(tier=round_num) for _ in range(n_enemies)]
+        # 적: 수는 팀의 55%, 라운드별 스탯 배율로 난이도 곡선 제어
+        n_enemies = max(1, round(len(team) * 0.55))
+        enemy_power = [0.9, 0.95, 1.0, 1.1, 1.2]  # 점진적 강화
+        enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
+                   for _ in range(n_enemies)]
 
         # 전투
         log = battle(team, enemies)
         battles.append(log)
         won_round = log.winner == 'a'
         choice_outcomes.append(won_round)
+
+        # 라운드 승리 시 생존 유닛 HP 15% 회복 (누적 피해 완화)
+        if won_round:
+            for u in team:
+                if u.is_alive():
+                    max_hp = 25 + round_num * 5 + 5
+                    u.hp = min(max_hp, u.hp + round(max_hp * 0.15))
 
         if not won_round:
             return GameResult(
