@@ -397,17 +397,33 @@ def interactive_play():
         for i, post in enumerate(log.b_units):
             enemies[i].hp = post.hp
 
-        # 전투 연출 — 하이라이트를 극적으로 표시
+        # 전투 실황 중계 — HP 타임라인 + 하이라이트
         import time
         print()
         a_hp_pct = f"{log.a_hp_remaining:.0%}"
         b_hp_pct = f"{log.b_hp_remaining:.0%}"
+
+        # HP 타임라인 미니 그래프 (5턴 간격 샘플링)
+        if log.hp_timeline and len(log.hp_timeline) > 2:
+            print(f"  {C.BOLD}── 전투 실황 ──{C.RESET}")
+            step = max(1, len(log.hp_timeline) // 6)
+            samples = log.hp_timeline[::step][:6]
+            for i, (ar, br) in enumerate(samples):
+                turn_num = i * step + 1
+                a_bar = "█" * round(ar * 10) + "░" * (10 - round(ar * 10))
+                b_bar = "█" * round(br * 10) + "░" * (10 - round(br * 10))
+                a_c = C.GREEN if ar >= br else C.RED
+                b_c = C.RED if ar >= br else C.GREEN
+                leader = "◀" if ar > br else "▶" if br > ar else "="
+                print(f"    T{turn_num:2d}  {a_c}{a_bar}{C.RESET} {leader} {b_c}{b_bar}{C.RESET}")
+                time.sleep(0.15)
+            print()
+
         if log.highlights:
-            print(f"  {C.BOLD}── 전투 진행 ──{C.RESET}")
             for h in log.highlights:
                 icon = "💥" if "크리티컬" in h else "👻" if "회피" in h else "🔥" if "부활" in h else "💀" if "처치" in h else "⚔️" if "역전" in h else "⚡"
                 print(f"    {icon} {h}")
-                time.sleep(0.3)
+                time.sleep(0.2)
             # 전투 후 HP 요약
             a_color = C.GREEN if won else C.RED
             b_color = C.RED if won else C.GREEN

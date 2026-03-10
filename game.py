@@ -64,6 +64,7 @@ class BattleLog:
     a_units: list = None  # 전투 후 a팀 유닛 상태
     b_units: list = None  # 전투 후 b팀 유닛 상태
     highlights: list = None  # 전투 주요 이벤트 문자열 리스트
+    hp_timeline: list = None  # [(a_ratio, b_ratio), ...] 턴별 HP 비율
 
 
 def apply_synergy(team: list[Unit]):
@@ -96,6 +97,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
     lead_changes = 0
     prev_leader = None
     highlights = []
+    hp_timeline = []
 
     for turn in range(200):
         alive_a = [u for u in a if u.is_alive()]
@@ -173,6 +175,10 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         target_b = random.choice(alive_a) if random.random() < 0.20 else alive_a[0]
         do_attack(attacker_a, target_a, imp_bonus_a, last_stand_a, underdog_b)
         do_attack(attacker_b, target_b, imp_bonus_b, last_stand_b, underdog_a)
+        # 턴별 HP 스냅샷
+        ar = sum(max(0, u.hp) for u in a) / a_max_hp if a_max_hp else 0
+        br = sum(max(0, u.hp) for u in b) / b_max_hp if b_max_hp else 0
+        hp_timeline.append((round(ar, 2), round(br, 2)))
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
@@ -189,6 +195,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         a_units=a,
         b_units=b,
         highlights=highlights[-8:] if highlights else [],  # 최근 8개
+        hp_timeline=hp_timeline,
     )
 
 
