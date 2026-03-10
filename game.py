@@ -92,6 +92,12 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
             lead_changes += 1
         prev_leader = leader
 
+        # wyrm 성장: 매 4턴마다 ATK +1 (긴 전투에서 역전)
+        if turn > 0 and turn % 4 == 0:
+            for u in alive_a + alive_b:
+                if u.name == 'wyrm':
+                    u.atk += 1
+
         # imp 사기 진작: 살아있는 imp 수만큼 팀 전원 ATK +1
         imp_bonus_a = sum(1 for u in alive_a if u.name == 'imp' and u.is_alive())
         imp_bonus_b = sum(1 for u in alive_b if u.name == 'imp' and u.is_alive())
@@ -157,6 +163,7 @@ def make_random_unit(tier: int = 1, stat_mult: float = 1.0) -> Unit:
         ('blob',  1.3, 0.7),   # 탱커: 높은 HP, 낮은 ATK
         ('bot',   0.9, 1.2),   # 딜러
         ('ghost', 1.1, 0.9),   # 서브탱커
+        ('wyrm',  1.2, 0.6),   # 성장형: 낮은 ATK, 턴 경과 시 성장
     ]
     name, hp_mult, atk_mult = random.choice(archetypes)
     base_hp = 25 + tier * 5
