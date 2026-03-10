@@ -558,15 +558,30 @@ def interactive_play():
             print(f"  {C.BOLD}── 전투 실황 ──{C.RESET}")
             step = max(1, len(log.hp_timeline) // 6)
             samples = log.hp_timeline[::step][:6]
+            # 마지막 턴도 항상 포함
+            last = log.hp_timeline[-1]
+            prev_leader_vis = None
             for i, (ar, br) in enumerate(samples):
                 turn_num = i * step + 1
                 a_bar = "█" * round(ar * 10) + "░" * (10 - round(ar * 10))
                 b_bar = "█" * round(br * 10) + "░" * (10 - round(br * 10))
                 a_c = C.GREEN if ar >= br else C.RED
                 b_c = C.RED if ar >= br else C.GREEN
+                cur_leader = 'a' if ar > br else 'b' if br > ar else None
+                reversal = ""
+                if prev_leader_vis and cur_leader and cur_leader != prev_leader_vis:
+                    reversal = f" {C.YELLOW}⚡역전!{C.RESET}"
+                prev_leader_vis = cur_leader if cur_leader else prev_leader_vis
                 leader = "◀" if ar > br else "▶" if br > ar else "="
-                print(f"    T{turn_num:2d}  {a_c}{a_bar}{C.RESET} {leader} {b_c}{b_bar}{C.RESET}")
+                print(f"    T{turn_num:2d}  {a_c}{a_bar}{C.RESET} {leader} {b_c}{b_bar}{C.RESET}{reversal}")
                 time.sleep(0.15)
+            # 최종 결과 라인
+            far, fbr = last
+            final_a = "█" * round(far * 10) + "░" * (10 - round(far * 10))
+            final_b = "█" * round(fbr * 10) + "░" * (10 - round(fbr * 10))
+            result_tag = f"{C.GREEN}WIN{C.RESET}" if won else f"{C.RED}LOSE{C.RESET}"
+            print(f"    {'─' * 30}")
+            print(f"    END {C.GREEN if won else C.RED}{final_a}{C.RESET}   {C.RED if won else C.GREEN}{final_b}{C.RESET}  [{result_tag}]")
             print()
 
         if log.highlights:
