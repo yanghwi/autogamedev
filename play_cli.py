@@ -290,6 +290,21 @@ def interactive_play():
                     u.hp = min(max_hp, u.hp + round(max_hp * 0.15))
             print("  (생존 유닛 HP 15% 회복 + 다음 드래프트 선택지 +1)")
 
+        # 상황 맞춤 전략 팁 (첫 플레이어 학습 지원)
+        if round_num < n_rounds:
+            from collections import Counter
+            tip_counts = Counter(u.name for u in team)
+            tip_pairs = [n for n, c in tip_counts.items() if c == 1]
+            tip_synergies = [n for n, c in tip_counts.items() if c >= 2]
+            if round_num <= 2 and not tip_synergies:
+                print(f"  {C.DIM}💡 팁: 같은 종족을 2마리 이상 모으면 시너지 보너스!{C.RESET}")
+            elif round_num == 3 and tip_pairs:
+                pair_name = tip_pairs[0]
+                icon = ARCHETYPE_ICON.get(pair_name, '?')
+                print(f"  {C.DIM}💡 팁: {icon}{pair_name}을 하나 더 뽑으면 시너지 발동!{C.RESET}")
+            elif round_num >= 5 and not won:
+                print(f"  {C.DIM}💡 팁: 어려운 후반! 높은 ATK 유닛이 생존에 도움됩니다.{C.RESET}")
+
         if not won and lives <= 0:
             print(f"\n  {C.RED}{C.BOLD}─── GAME OVER ───{C.RESET}")
             _show_game_summary(team, team_max_hps, all_battles, round_num - 1, n_rounds, 0)
