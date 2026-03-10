@@ -533,14 +533,33 @@ def interactive_play():
             tip_counts = Counter(u.name for u in team)
             tip_pairs = [n for n, c in tip_counts.items() if c == 1]
             tip_synergies = [n for n, c in tip_counts.items() if c >= 2]
+            total_atk = sum(u.atk for u in team if u.is_alive())
+            total_hp = sum(u.hp for u in team if u.is_alive())
+            tip = None
             if round_num <= 2 and not tip_synergies:
-                print(f"  {C.DIM}💡 팁: 같은 종족을 2마리 이상 모으면 시너지 보너스!{C.RESET}")
-            elif round_num == 3 and tip_pairs:
+                tip = "같은 종족을 2마리 이상 모으면 시너지 보너스!"
+            elif round_num == 3 and tip_pairs and not tip_synergies:
                 pair_name = tip_pairs[0]
                 icon = ARCHETYPE_ICON.get(pair_name, '?')
-                print(f"  {C.DIM}💡 팁: {icon}{pair_name}을 하나 더 뽑으면 시너지 발동!{C.RESET}")
-            elif round_num >= 5 and not won:
-                print(f"  {C.DIM}💡 팁: 어려운 후반! 높은 ATK 유닛이 생존에 도움됩니다.{C.RESET}")
+                tip = f"{icon}{pair_name}을 하나 더 뽑으면 시너지 발동!"
+            elif round_num >= 4 and not won and total_atk < len(team) * 4:
+                tip = "화력이 부족합니다. beast나 bot 같은 딜러를 영입하세요!"
+            elif round_num >= 4 and not won and total_hp < len(team) * 20:
+                tip = "생존력이 낮습니다. blob(탱커)을 전위에 세워보세요!"
+            elif round_num >= 5 and won and not tip_synergies:
+                tip = "지금까지 잘 왔지만, 시너지 없이 후반은 힘듭니다!"
+            elif round_num >= 6 and not won:
+                tip = "후반 적은 시너지 팀일 수 있어요. 우리도 시너지를 맞추세요!"
+            elif round_num >= 3 and tip_synergies:
+                best_syn = max(tip_synergies, key=lambda n: tip_counts[n])
+                icon = ARCHETYPE_ICON.get(best_syn, '?')
+                cnt = tip_counts[best_syn]
+                if cnt == 2:
+                    tip = f"{icon}{best_syn} 시너지 발동 중! 3마리면 +35% 보너스!"
+                elif cnt >= 3:
+                    tip = f"{icon}{best_syn} x{cnt} 강력한 시너지! 계속 밀어붙이세요!"
+            if tip:
+                print(f"  {C.DIM}💡 팁: {tip}{C.RESET}")
 
         if not won and lives <= 0:
             import time
