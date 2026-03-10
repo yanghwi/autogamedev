@@ -122,9 +122,13 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
         last_stand_a = 1.5 if len(alive_a) == 1 else 1.0
         last_stand_b = 1.5 if len(alive_b) == 1 else 1.0
 
-        def do_attack(atk_unit, def_unit, imp_bonus, last_stand=1.0):
+        # 역전 보너스: 열세 팀 피해 15% 감소 (역전 기회 증가)
+        underdog_a = 0.85 if a_ratio < b_ratio - 0.1 else 1.0
+        underdog_b = 0.85 if b_ratio < a_ratio - 0.1 else 1.0
+
+        def do_attack(atk_unit, def_unit, imp_bonus, last_stand=1.0, underdog=1.0):
             base_atk = round((atk_unit.effective_atk() + imp_bonus) * last_stand)
-            dmg = max(1, round(base_atk * random.uniform(0.3, 1.7)))
+            dmg = max(1, round(base_atk * random.uniform(0.3, 1.7) * underdog))
             # 크리티컬 히트: 10% 확률로 2배 데미지
             is_crit = random.random() < 0.10
             if is_crit:
@@ -151,20 +155,20 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
                 else:
                     highlights.append(f"턴{turn}: {atk_unit.name}→{def_unit.name} 처치!")
 
-        # a 공격
+        # a 공격 (b가 열세면 a의 공격이 약해짐)
         attacker = alive_a[turn % len(alive_a)]
         target = alive_b[0]
-        do_attack(attacker, target, imp_bonus_a, last_stand_a)
+        do_attack(attacker, target, imp_bonus_a, last_stand_a, underdog_b)
 
         alive_a = [u for u in a if u.is_alive()]
         alive_b = [u for u in b if u.is_alive()]
         if not alive_a or not alive_b:
             break
 
-        # b 공격
+        # b 공격 (a가 열세면 b의 공격이 약해짐)
         attacker = alive_b[turn % len(alive_b)]
         target = alive_a[0]
-        do_attack(attacker, target, imp_bonus_b, last_stand_b)
+        do_attack(attacker, target, imp_bonus_b, last_stand_b, underdog_a)
 
     alive_a = [u for u in a if u.is_alive()]
     alive_b = [u for u in b if u.is_alive()]
