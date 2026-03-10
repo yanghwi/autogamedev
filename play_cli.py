@@ -78,7 +78,7 @@ def interactive_play():
             print()
 
         # 드래프트
-        choices = [make_random_unit(tier=round_num) for _ in range(3)]
+        choices = [make_random_unit(tier=round_num) for _ in range(4)]
         print("  드래프트 — 하나를 선택하세요:")
         print()
         for i, c in enumerate(choices):
@@ -89,12 +89,12 @@ def interactive_play():
 
         while True:
             try:
-                pick = int(input("  선택 (1-3): ")) - 1
-                if 0 <= pick <= 2:
+                pick = int(input("  선택 (1-4): ")) - 1
+                if 0 <= pick <= 3:
                     break
             except (ValueError, EOFError):
                 pass
-            print("  1, 2, 3 중 하나를 입력하세요.")
+            print("  1, 2, 3, 4 중 하나를 입력하세요.")
 
         chosen = choices[pick]
         team.append(chosen)
