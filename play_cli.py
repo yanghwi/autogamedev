@@ -228,6 +228,8 @@ def interactive_play():
         choices = [make_random_unit(tier=round_num) for _ in range(n_choices)]
         bonus_tag = " (+1 보너스!)" if n_choices == 5 else ""
         print(f"  드래프트{bonus_tag} — 하나를 선택하세요:")
+        if round_num == 1:
+            print(f"  {C.DIM}(첫 유닛! 높은 ATK=공격력, 높은 HP=생존력. 패시브도 확인!){C.RESET}")
         print()
         from collections import Counter
         team_counts = Counter(u.name for u in team)
