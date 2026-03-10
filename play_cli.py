@@ -195,8 +195,9 @@ def interactive_play():
     team_max_hps: list[int] = []
     n_rounds = 9
     enemies_per_round = [2, 2, 2, 3, 3, 4, 4, 5, 3]
-    enemy_power = [round(p * power_mult, 2) for p in [0.55, 0.8, 0.95, 0.95, 1.0, 1.05, 1.15, 1.2, 1.35]]
+    enemy_power = [round(p * power_mult, 2) for p in [0.60, 0.85, 0.95, 0.95, 1.0, 1.10, 1.15, 1.2, 1.40]]
     prev_won = False  # 직전 라운드 승리 여부 (보너스 선택지용)
+    just_revived = False  # 부활 직후 플래그
     all_battles = []  # 전투 기록 누적
 
     for round_num in range(1, n_rounds + 1):
@@ -330,7 +331,12 @@ def interactive_play():
 
         # 적 생성 — game.py와 동일한 공식
         n_enemies = enemies_per_round[round_num - 1]
-        enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
+        ep = enemy_power[round_num - 1]
+        if just_revived:
+            ep *= 0.90  # 부활 직후: 적 10% 약화
+            just_revived = False
+            print(f"  {C.CYAN}부활 효과: 적이 약해졌다!{C.RESET}")
+        enemies = [make_random_unit(tier=round_num, stat_mult=ep)
                    for _ in range(n_enemies)]
         enemy_max_hps = [e.hp for e in enemies]
 
@@ -463,8 +469,9 @@ def interactive_play():
                     print(f"    {C.DIM}• {reason}{C.RESET}")
             lives -= 1
             if lives > 0:
+                just_revived = True
                 print(f"  {C.YELLOW}✘ 패배... 하지만 아직 목숨 {lives}개 남음!{C.RESET}")
-                print("  (전원 HP 50%로 부활)")
+                print("  (전원 HP 50%로 부활 + 다음 라운드 적 약화)")
                 for i, u in enumerate(team):
                     max_hp = 25 + round_num * 5 + 5
                     u.hp = max(1, round(max_hp * 0.5))
