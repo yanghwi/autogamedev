@@ -133,8 +133,60 @@ def _show_game_summary(team, team_max_hps, all_battles, cleared, total, lives):
         grade, grade_color = "D", C.DIM
     print(f"\n  {C.BOLD}플레이 등급: {grade_color}{grade}{C.RESET}  ({score}점)")
 
+    # 칭호 부여 (특별한 플레이 패턴에 따라)
+    titles = []
+    if cleared == total and lives == max(lives, 2):
+        titles.append("☽ 무결점 사냥꾼")
+    if total_reversals >= 10:
+        titles.append("⚡ 역전의 제왕")
+    if synergies and max(c for _, c in synergies) >= 4:
+        titles.append("🔮 시너지 마스터")
+    close_wins = sum(1 for b in all_battles if b.winner == 'a' and b.a_hp_remaining < 0.2)
+    if close_wins >= 3:
+        titles.append("💀 사선의 생존자")
+    if all(b.winner == 'a' for b in all_battles[:3]) and cleared >= 3:
+        titles.append("🔥 개막 쓸어담기")
+    if titles:
+        print(f"\n  {C.BOLD}획득 칭호:{C.RESET}")
+        for t in titles:
+            print(f"    {C.YELLOW}{t}{C.RESET}")
+
+    # 최고 기록 저장
+    import json, pathlib
+    record_path = pathlib.Path(__file__).parent / '.bestiary_records.json'
+    try:
+        records = json.loads(record_path.read_text()) if record_path.exists() else {}
+    except Exception:
+        records = {}
+    best_score = records.get('best_score', 0)
+    best_cleared = records.get('best_cleared', 0)
+    total_games = records.get('total_games', 0) + 1
+    new_best = False
+    if score > best_score:
+        records['best_score'] = score
+        new_best = True
+    if cleared > best_cleared:
+        records['best_cleared'] = cleared
+    records['total_games'] = total_games
+    try:
+        record_path.write_text(json.dumps(records))
+    except Exception:
+        pass
+    if new_best and best_score > 0:
+        print(f"\n  {C.YELLOW}{C.BOLD}🏆 NEW BEST! 이전 최고: {best_score}점 → {score}점{C.RESET}")
+    print(f"  {C.DIM}통산 {total_games}회 플레이  |  최고 {records.get('best_score', score)}점  |  최고 R{records.get('best_cleared', cleared)}{C.RESET}")
+
     # 전략 팁
-    print(f"\n  {C.DIM}팁: 같은 종족을 모으면 시너지 보너스! (2+→스탯 UP){C.RESET}")
+    if cleared < total:
+        # 패배 시 구체적 팁
+        if not synergies:
+            print(f"\n  {C.DIM}팁: 같은 종족을 2마리 이상 모아 시너지를 발동하세요!{C.RESET}")
+        elif cleared <= 4:
+            print(f"\n  {C.DIM}팁: 초반에는 HP 높은 blob을 전위로 세워 버티세요!{C.RESET}")
+        else:
+            print(f"\n  {C.DIM}팁: 후반은 ATK가 중요합니다. beast/bot 딜러를 확보하세요!{C.RESET}")
+    else:
+        print(f"\n  {C.DIM}다음엔 더 높은 난이도에 도전해보세요!{C.RESET}")
 
 
 def _show_bestiary():
