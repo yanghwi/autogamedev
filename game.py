@@ -111,7 +111,7 @@ def battle(team_a: list[Unit], team_b: list[Unit]) -> BattleLog:
 
         def do_attack(atk_unit, def_unit, imp_bonus):
             base_atk = atk_unit.effective_atk() + imp_bonus
-            dmg = max(1, round(base_atk * random.uniform(0.5, 1.5)))
+            dmg = max(1, round(base_atk * random.uniform(0.3, 1.7)))
             if def_unit.name == 'ghost' and random.random() < 0.25:
                 dmg = 0  # ghost 회피
                 # ghost 반격: 회피 성공 시 공격자에게 반격
