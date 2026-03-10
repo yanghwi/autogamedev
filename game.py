@@ -133,7 +133,7 @@ def play(strategy=None) -> GameResult:
     team: list[Unit] = []
     battles: list[BattleLog] = []
     choice_outcomes: list[bool] = []
-    n_rounds = 5  # 에이전트가 조정할 수 있음
+    n_rounds = 7  # 7라운드: 더 긴 진행감 곡선
 
     for round_num in range(1, n_rounds + 1):
         # 드래프트: 3개 중 1개 선택
@@ -145,9 +145,9 @@ def play(strategy=None) -> GameResult:
         team.append(choices[pick])
 
         # 적: 라운드별 수 직접 지정 (R1-2 평탄 해소) + 스탯 배율
-        enemies_per_round = [1, 2, 2, 3, 3]  # R2를 2v2로
+        enemies_per_round = [1, 2, 2, 3, 3, 4, 4]  # 7라운드 확장
         n_enemies = enemies_per_round[round_num - 1]
-        enemy_power = [0.9, 0.8, 0.95, 1.0, 1.15]  # R2 약화로 2v2 보상
+        enemy_power = [0.9, 0.8, 0.95, 0.95, 1.0, 1.05, 1.1]
         enemies = [make_random_unit(tier=round_num, stat_mult=enemy_power[round_num - 1])
                    for _ in range(n_enemies)]
 
