@@ -202,11 +202,25 @@ def interactive_play():
     for round_num in range(1, n_rounds + 1):
         clear()
         lives_str = "♥" * lives + "♡" * (max_lives - lives)
+        # 라운드별 분위기 내러티브
+        flavor = {
+            1: "달이 떠오른다...",
+            2: "숲에서 울음소리가 들린다.",
+            3: "안개가 짙어진다.",
+            4: "대지가 진동한다.",
+            5: "하늘이 붉게 물든다.",
+            6: "그림자가 길어진다.",
+            7: "바람이 비명을 지른다.",
+            8: "어둠이 모든 것을 삼킨다.",
+            9: "최후의 전투가 시작된다...",
+        }
         if round_num == n_rounds:
             print(f"  {C.RED}{C.BOLD}══ FINAL ROUND  {lives_str} ══{C.RESET}")
-            print(f"  {C.DIM}최후의 전투가 시작된다...{C.RESET}")
+            print(f"  {C.DIM}{flavor.get(round_num, '')}{C.RESET}")
         else:
             print(f"  ══ ROUND {round_num}/{n_rounds}  {lives_str} ══")
+            if round_num in flavor:
+                print(f"  {C.DIM}{flavor[round_num]}{C.RESET}")
         print()
 
         if team:
