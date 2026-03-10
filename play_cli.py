@@ -458,10 +458,12 @@ def interactive_play():
             raw_battle = input(f"\n  [Enter] 전투 시작 / [F] 전위 변경: ").strip().lower()
             if raw_battle == 'f':
                 print(f"\n  {C.BOLD}전위로 세울 유닛 선택:{C.RESET}")
+                best_tank_idx = max(range(len(team)), key=lambda i: team[i].hp)
                 for i, u in enumerate(team):
                     uicon = ARCHETYPE_ICON.get(u.name, '?')
                     front_tag = f" {C.YELLOW}◀ 현재 전위{C.RESET}" if i == 0 else ""
-                    print(f"    [{i + 1}] {uicon} {u.name:6s}  HP {u.hp:3d}  ATK {u.atk:2d}{front_tag}")
+                    tank_tag = f" {C.CYAN}◆ 탱커 추천{C.RESET}" if i == best_tank_idx and i != 0 else ""
+                    print(f"    [{i + 1}] {uicon} {u.name:6s}  HP {u.hp:3d}  ATK {u.atk:2d}{front_tag}{tank_tag}")
                 while True:
                     try:
                         front = int(input(f"  전위 (1-{len(team)}): ")) - 1
