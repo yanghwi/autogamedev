@@ -264,6 +264,15 @@ def play(strategy=None) -> GameResult:
         if round_num > 1 and choice_outcomes and choice_outcomes[-1]:
             n_choices = 5  # 승리 보상: 선택지 확대
         choices = [make_random_unit(tier=round_num) for _ in range(n_choices)]
+        # 10% 확률로 ★ 레어 유닛 출현 (스탯 +25%)
+        if random.random() < 0.10:
+            rare_idx = random.randint(0, len(choices) - 1)
+            c = choices[rare_idx]
+            c.hp = round(c.hp * 1.25)
+            c.atk = max(1, round(c.atk * 1.25))
+            c.max_hp = c.hp
+            c.name = c.name  # 이름 유지 (play_cli에서 ★ 표시용)
+            c._rare = True
         # R3 이후: 선택지 중 1개를 팀 종족으로 보장 (시너지 빌드 지원)
         if team and round_num >= 3:
             team_names = [u.name for u in team]
